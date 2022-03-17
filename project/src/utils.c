@@ -19,5 +19,9 @@ size_t timer_from(int from) {
 
 // TODO: Implement `power of` function
 int custom_pow(int base, int power) {
-    return 0;
+    if (power == 0) {
+        return 1;
+    } else {
+        return base * custom_pow(base, power - 1 );
+    }
 }
