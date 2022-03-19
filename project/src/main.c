@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "stdio.h"
-#include <math.h>
 #include "case3.h"
+#include "case4.h"
 #include <stdlib.h>
 
 #define ERR_ARGS_COUNT (-1)
@@ -10,6 +10,7 @@
 #define TST_FOO_FIX     1
 #define TST_FOO_IMPL    2
 #define TST_MOD_IMPL    3
+#define TST_CASE4_IMPL  4
 
 
 /* NOTE(stitaevskiy):
@@ -63,6 +64,11 @@ int main(int argc, const char** argv) {
             // TODO: Print to stdout `1` if `num` is prime number and `0` otherwise
             // This function MUST be implemented in
             // a separate C-module (not in `main` or `utils` module)
+            break;
+        }
+        case TST_CASE4_IMPL: {
+            int to = atoi(data);
+            recursive_function(to, 1);
             break;
         }
         default: {
