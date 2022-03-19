@@ -68,7 +68,7 @@ int main(int argc, const char** argv) {
         }
         case TST_CASE4_IMPL: {
             int to = atoi(data);
-            recursive_function(to, 1);
+            recursive_function(to);
             break;
         }
         default: {
