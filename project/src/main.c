@@ -48,7 +48,7 @@ int main(int argc, const char** argv) {
             if (argc == 4) {
                 int base = atoi(data);
                 int pow =  atoi(argv[3]);
-                int res = custom_pow(base, pow);    // TODO: Implement me
+                int res = custom_pow(base, pow);
 
                 printf("%i\n", res);
             } else {
@@ -61,7 +61,6 @@ int main(int argc, const char** argv) {
             int res = is_prime(num);
             printf("%i", res);
 
-            // TODO: Print to stdout `1` if `num` is prime number and `0` otherwise
             // This function MUST be implemented in
             // a separate C-module (not in `main` or `utils` module)
             break;

@@ -1,6 +1,6 @@
-#ifndef HOMEWORK_CASE4_H
-#define HOMEWORK_CASE4_H
+#ifndef PROJECT_INCLUDE_CASE4_H_
+#define PROJECT_INCLUDE_CASE4_H_
 
 void recursive_function(int to);
 
-#endif //HOMEWORK_CASE4_H
+#endif  // PROJECT_INCLUDE_CASE4_H_
