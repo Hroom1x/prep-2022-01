@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "utils.h"
+#include "case2.h"
 #include "case3.h"
 #include "case4.h"
 
