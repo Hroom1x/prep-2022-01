@@ -1,13 +1,14 @@
-#include "case3.h"
 #include "stdio.h"
-#include <math.h>
 
-int is_prime(signed int num) {
-    int max_possible_div = round(sqrt(sqrt(num*num)));
+#include "case3.h"
+
+int is_prime(int num) {
     if (num == 1 || num == 0) {
         return 0;
+    } else if (num < 0) {
+        return 0;
     } else {
-        for (int i = max_possible_div; i > 0; --i) {
+        for (int i = num - 1; i > 1; --i) {
             if (num % i == 0) {
                 return 0;
             }

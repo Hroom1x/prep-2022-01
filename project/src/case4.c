@@ -1,5 +1,6 @@
-#include "case4.h"
 #include "stdio.h"
+
+#include "case4.h"
 
 void recursive_function(int to) {
     if (to == 1) {

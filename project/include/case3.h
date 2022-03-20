@@ -1,7 +1,6 @@
 #ifndef PROJECT_INCLUDE_CASE3_H_
 #define PROJECT_INCLUDE_CASE3_H_
-#include <math.h>
 
-int is_prime(signed int num);
+int is_prime(int num);
 
 #endif  // PROJECT_INCLUDE_CASE3_H_

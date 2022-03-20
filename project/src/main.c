@@ -1,8 +1,9 @@
-#include "utils.h"
 #include "stdio.h"
+#include <stdlib.h>
+
+#include "utils.h"
 #include "case3.h"
 #include "case4.h"
-#include <stdlib.h>
 
 #define ERR_ARGS_COUNT (-1)
 #define ERR_WRONG_FLG (-2)
@@ -11,22 +12,6 @@
 #define TST_FOO_IMPL    2
 #define TST_MOD_IMPL    3
 #define TST_CASE4_IMPL  4
-
-
-/* NOTE(stitaevskiy):
- * We use `atoi` function just for simplification and code reducing.
- * This function doesn't report conversation errors.
- * For safety program we recommend using `strtol` and its analogs.
- * (See `man atoi` and `man strtol` for more info).
- *
- * const char str_num[] = "1234";
- * char* end = NULL;
- * int val = (int) strtol(str_num, &end, 0);
- * if (end != '\0') {
- *     //ERROR
- * }
- *
- * */
 
 int main(int argc, const char** argv) {
     if (argc < 3) {
@@ -40,8 +25,12 @@ int main(int argc, const char** argv) {
     switch (Test_case) {
         case TST_FOO_FIX: {
             int to = atoi(data);
-            size_t ticks_count = timer_from(to);
-            printf("%zu\n", ticks_count);
+            if (to > 0) {
+                size_t ticks_count = timer_from(to);
+                printf("%zu\n", ticks_count);
+            } else {
+                printf("%i", 0);
+            }
             break;
         }
         case TST_FOO_IMPL: {
@@ -60,9 +49,6 @@ int main(int argc, const char** argv) {
             int num = atoi(data);
             int res = is_prime(num);
             printf("%i", res);
-
-            // This function MUST be implemented in
-            // a separate C-module (not in `main` or `utils` module)
             break;
         }
         case TST_CASE4_IMPL: {
