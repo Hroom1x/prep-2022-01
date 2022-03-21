@@ -3,8 +3,7 @@
 #include "utils.h"
 
 size_t timer_from(size_t from) {
-    size_t counter;
-    counter = 1;
+    size_t counter = 1;
     printf("%zu", from);
     for (int i = from - 1; i >= 0; --i) {
         ++counter;
