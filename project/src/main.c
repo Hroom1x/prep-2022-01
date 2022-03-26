@@ -39,7 +39,7 @@ int main() {
                 Ptr_2 = fopen("transaction.dat", "r");
                 blackrecord = fopen("blackrecord.dat", "w");
 
-                if (Ptr == NULL || Ptr_2 == NULL || blackRecord == NULL) puts("exit");
+                if (Ptr == NULL || Ptr_2 == NULL) puts("exit");
                 else {
                     blackRecord(Ptr, Ptr_2, blackrecord, client_data, transfer);
                     free(Ptr);

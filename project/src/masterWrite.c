@@ -3,8 +3,8 @@
 #include "utils.h"
 #include "masterWrite.h"
 
+// Yo! Master Write! Lets code some stuff.
 void masterWrite(FILE *ofPTR, Data Client) {
-    // Yo! Master Write! Lets code some stuff.
     printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
            "1 Number account: ",
            "2 Client name: ",
