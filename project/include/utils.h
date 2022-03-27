@@ -15,9 +15,4 @@ struct masterRecord {
 };
 typedef struct masterRecord Data;
 
-/*
-// This comment is very useful
-printf("This message is very useful too")
- */
-
 #endif //UTILS_H
