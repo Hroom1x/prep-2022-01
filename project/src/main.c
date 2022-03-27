@@ -16,7 +16,7 @@ int input_client_data(Data *Client) {
            "6 Client indebtedness: ",
            "7 Client credit limit: ",
            "8 Client cash payments: ");
-    return scanf("%d%s%s%s%s%lf%lf%lf", &Client->Number, Client->Name, Client->Surname, Client->address,
+    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->Number, Client->Name, Client->Surname, Client->address,
                  Client->TelNumber, &Client->indebtedness, &Client->credit_limit, &Client->cash_payments);
 }
 
@@ -24,15 +24,11 @@ int input_transfer(Data *transfer) {
     printf("%s\n%s\n",
            "1 Number account: ",
            "2 Client cash payments: ");
-    // fprintf(ofPtr, "%-3d%-6.2f\n", transfer.Number, transfer.cash_payments);
     return scanf("%d %lf", &transfer->Number, &transfer->cash_payments);
 }
 
 int main() {
     int choice = 0;
-    // void masterWrite(FILE *ofPTR, Data Client);
-    // void transactionWrite(FILE *ofPTR, Data transfer);
-    // void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord, Data client_data, Data transfer);
     FILE *Ptr, *Ptr_2, *blackrecord;
     Data client_data, transfer;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
@@ -45,9 +41,9 @@ int main() {
                 } else {
                     while (input_client_data(&client_data) != -1) {
                         masterWrite(Ptr, client_data);
-                        fclose(Ptr);
                     }
                 }
+                fclose(Ptr);
                 break;
             case 2:
                 Ptr = fopen(filename, "r+");
@@ -56,9 +52,9 @@ int main() {
                 } else {
                     while (input_transfer(&transfer) != -1) {
                         transactionWrite(Ptr, transfer);
-                        fclose(Ptr);
                     }
                 }
+                fclose(Ptr);
                 break;
             case 3:
                 Ptr = fopen("record.dat", "r");
@@ -67,7 +63,7 @@ int main() {
 
                 if (Ptr == NULL || Ptr_2 == NULL) puts("exit");
                 else {
-                    blackRecord(Ptr, Ptr_2, blackrecord, client_data, transfer);
+                    blackRecord(Ptr, Ptr_2, blackrecord);
                     fclose(Ptr);
                     fclose(Ptr_2);
                     fclose(blackrecord);
