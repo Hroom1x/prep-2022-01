@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef PROJECT_INCLUDE_UTILS_H_
+#define PROJECT_INCLUDE_UTILS_H_
 
 #include <stdio.h>
 
@@ -17,4 +17,4 @@ struct masterRecord {
 };
 typedef struct masterRecord Data;
 
-#endif //UTILS_H
+#endif  // PROJECT_INCLUDE_UTILS_H_

@@ -1,5 +1,5 @@
-#ifndef HOMEWORK_BLACKRECORD_H
-#define HOMEWORK_BLACKRECORD_H
+#ifndef PROJECT_INCLUDE_BLACKRECORD_H_
+#define PROJECT_INCLUDE_BLACKRECORD_H_
 
 #include <stdio.h>
 
@@ -7,4 +7,4 @@
 
 void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord);
 
-#endif //HOMEWORK_BLACKRECORD_H
+#endif  // PROJECT_INCLUDE_BLACKRECORD_H_

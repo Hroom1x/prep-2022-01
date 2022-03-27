@@ -42,8 +42,8 @@ int main() {
                     while (input_client_data(&client_data) != -1) {
                         masterWrite(Ptr, client_data);
                     }
+                    fclose(Ptr);
                 }
-                fclose(Ptr);
                 break;
             case 2:
                 Ptr = fopen(filename, "r+");
@@ -53,16 +53,17 @@ int main() {
                     while (input_transfer(&transfer) != -1) {
                         transactionWrite(Ptr, transfer);
                     }
+                    fclose(Ptr);
                 }
-                fclose(Ptr);
                 break;
             case 3:
                 Ptr = fopen("record.dat", "r");
                 Ptr_2 = fopen("transaction.dat", "r");
                 blackrecord = fopen("blackrecord.dat", "w");
 
-                if (Ptr == NULL || Ptr_2 == NULL) puts("exit");
-                else {
+                if (Ptr == NULL || Ptr_2 == NULL) {
+                    puts("exit");
+                } else {
                     blackRecord(Ptr, Ptr_2, blackrecord);
                     fclose(Ptr);
                     fclose(Ptr_2);
