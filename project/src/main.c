@@ -16,8 +16,9 @@ int input_client_data(Data *Client) {
            "6 Client indebtedness: ",
            "7 Client credit limit: ",
            "8 Client cash payments: ");
-    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->Number, Client->Name, Client->Surname, Client->address,
-                 Client->TelNumber, &Client->indebtedness, &Client->credit_limit, &Client->cash_payments);
+    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->Number, Client->Name, Client->Surname,
+                 Client->address, Client->TelNumber, &Client->indebtedness, &Client->credit_limit,
+                 &Client->cash_payments);
 }
 
 int input_transfer(Data *transfer) {
