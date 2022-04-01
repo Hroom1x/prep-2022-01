@@ -4,17 +4,21 @@
 #include <stdio.h>
 
 #define filename "transaction.dat"
+// enum file_names {
+//     //
+// };
 
-struct masterRecord {
-    int Number;
-    char Name[20];
-    char Surname[20];
+struct master_record {
+    int number;
+    char name[20];
+    char surname[20];
     char address[30];
-    char TelNumber[15];
+    char tel_number[15];
     double indebtedness;
     double credit_limit;
     double cash_payments;
 };
-typedef struct masterRecord Data;
+
+typedef struct master_record data_t;
 
 #endif  // PROJECT_INCLUDE_UTILS_H_

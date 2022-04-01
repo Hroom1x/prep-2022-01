@@ -2,11 +2,16 @@
 #include <stdlib.h>
 
 #include "utils.h"
-#include "blackRecord.h"
-#include "transactionWrite.h"
-#include "masterWrite.h"
+#include "black_record.h"
+#include "transaction_write.h"
+#include "master_write.h"
 
-int input_client_data(Data *Client) {
+// проверка на null if (!c) {error}
+// проверка на считывание if (scanf() != *количество параметров*) {error}
+// вынести константы в enum
+// написать простенький тест
+
+int input_client_data(data_t *Client) {
     printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
            "1 Number account: ",
            "2 Client name: ",
@@ -16,22 +21,22 @@ int input_client_data(Data *Client) {
            "6 Client indebtedness: ",
            "7 Client credit limit: ",
            "8 Client cash payments: ");
-    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->Number, Client->Name, Client->Surname,
-                 Client->address, Client->TelNumber, &Client->indebtedness, &Client->credit_limit,
+    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->number, Client->name, Client->surname,
+                 Client->address, Client->tel_number, &Client->indebtedness, &Client->credit_limit,
                  &Client->cash_payments);
 }
 
-int input_transfer(Data *transfer) {
+int input_transfer(data_t *transfer) {
     printf("%s\n%s\n",
            "1 Number account: ",
            "2 Client cash payments: ");
-    return scanf("%d %lf", &transfer->Number, &transfer->cash_payments);
+    return scanf("%d %lf", &transfer->number, &transfer->cash_payments);
 }
 
 int main() {
     int choice = 0;
     FILE *Ptr, *Ptr_2, *blackrecord;
-    Data client_data, transfer;
+    data_t client_data, transfer;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     while (scanf("%d", &choice) != -1) {
         switch (choice) {
@@ -41,7 +46,7 @@ int main() {
                     puts("Have no access");
                 } else {
                     while (input_client_data(&client_data) != -1) {
-                        masterWrite(Ptr, client_data);
+                        master_write(Ptr, client_data);
                     }
                     fclose(Ptr);
                 }
@@ -52,7 +57,7 @@ int main() {
                     puts("Have no access");
                 } else {
                     while (input_transfer(&transfer) != -1) {
-                        transactionWrite(Ptr, transfer);
+                        transaction_write(Ptr, transfer);
                     }
                     fclose(Ptr);
                 }
