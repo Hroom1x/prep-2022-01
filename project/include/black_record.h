@@ -5,6 +5,6 @@
 
 #include "utils.h"
 
-void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord);
+void black_record(FILE *ofPTR, FILE *ofPTR_2, FILE *Blackrecord);
 
 #endif  // PROJECT_INCLUDE_BLACK_RECORD_H_

@@ -8,17 +8,20 @@
 
 // TODO(me): проверка на null if (!c) {error}
 // TODO(me): проверка на считывание if (scanf() != *количество параметров*) {error}
-// TODO(me): вынести константы в enum
 // TODO(me): написать тест
 
-// enum buf_sizes {
-//     NAME = 20 - 1,
-//     SURNAME = 20 - 1,
-//     ADDRESS = 30 - 1,
-//     TEL_NUMBER = 15 - 1
-// };
+enum buf_sizes {
+    FORMAT_STRING_MAX_SIZE = 110,
+    NAME = 20,
+    SURNAME = 20,
+    ADDRESS = 30,
+    TEL_NUMBER = 15
+};
 
 int input_client_data(data_t *Client) {
+    char format_string[FORMAT_STRING_MAX_SIZE];
+    snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf",
+             NAME, SURNAME, ADDRESS, TEL_NUMBER);
     printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
            "1 Number account: ",
            "2 Client name: ",
@@ -28,21 +31,22 @@ int input_client_data(data_t *Client) {
            "6 Client indebtedness: ",
            "7 Client credit limit: ",
            "8 Client cash payments: ");
-    return scanf("%i%20s%20s%30s%15s%lf%lf%lf", &Client->number, Client->name, Client->surname,
-                 Client->address, Client->tel_number, &Client->indebtedness, &Client->credit_limit,
-                 &Client->cash_payments);
+    int res = scanf(format_string, &Client->number, Client->name, Client->surname, Client->address,
+                    Client->tel_number, &Client->indebtedness, &Client->credit_limit, &Client->cash_payments);
+    return res;
 }
 
 int input_transfer(data_t *transfer) {
     printf("%s\n%s\n",
            "1 Number account: ",
            "2 Client cash payments: ");
-    return scanf("%d %lf", &transfer->number, &transfer->cash_payments);
+    int res = scanf("%d %lf", &transfer->number, &transfer->cash_payments);
+    return res;
 }
 
 int main() {
     int choice = 0;
-    FILE *Ptr, *Ptr_2, *blackrecord;
+    FILE *Ptr, *Ptr_2, *Blackrecord;
     data_t client_data, transfer;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     while (scanf("%d", &choice) != -1) {
@@ -72,15 +76,15 @@ int main() {
             case 3:
                 Ptr = fopen(record_filename, "r");
                 Ptr_2 = fopen(transaction_filename, "r");
-                blackrecord = fopen(blackrecord_filename, "w");
+                Blackrecord = fopen(blackrecord_filename, "w");
 
                 if (Ptr == NULL || Ptr_2 == NULL) {
                     puts("exit");
                 } else {
-                    blackRecord(Ptr, Ptr_2, blackrecord);
+                    black_record(Ptr, Ptr_2, Blackrecord);
                     fclose(Ptr);
                     fclose(Ptr_2);
-                    fclose(blackrecord);
+                    fclose(Blackrecord);
                 }
                 break;
             default:

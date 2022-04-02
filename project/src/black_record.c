@@ -13,7 +13,7 @@ enum buf_sizes {
     DOUBLE_ACCURACY = 2
 };
 
-void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord) {
+void black_record(FILE *ofPTR, FILE *ofPTR_2, FILE *Blackrecord) {
     data_t client_data, transfer;
 
     char format_string_blackrecord[FORMAT_STRING_MAX_SIZE];
@@ -35,7 +35,7 @@ void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord) {
                 client_data.credit_limit += transfer.cash_payments;
             }
         }
-        fprintf(blackrecord, format_string_blackrecord, client_data.number,
+        fprintf(Blackrecord, format_string_blackrecord, client_data.number,
                 client_data.name, client_data.surname, client_data.address, client_data.tel_number,
                 client_data.indebtedness, client_data.credit_limit, client_data.cash_payments);
         rewind(ofPTR_2);
