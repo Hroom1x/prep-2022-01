@@ -6,10 +6,17 @@
 #include "transaction_write.h"
 #include "master_write.h"
 
-// проверка на null if (!c) {error}
-// проверка на считывание if (scanf() != *количество параметров*) {error}
-// вынести константы в enum
-// написать простенький тест
+// TODO(me): проверка на null if (!c) {error}
+// TODO(me): проверка на считывание if (scanf() != *количество параметров*) {error}
+// TODO(me): вынести константы в enum
+// TODO(me): написать тест
+
+// enum buf_sizes {
+//     NAME = 20 - 1,
+//     SURNAME = 20 - 1,
+//     ADDRESS = 30 - 1,
+//     TEL_NUMBER = 15 - 1
+// };
 
 int input_client_data(data_t *Client) {
     printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
@@ -41,7 +48,7 @@ int main() {
     while (scanf("%d", &choice) != -1) {
         switch (choice) {
             case 1:
-                Ptr = fopen("record.dat", "r+");
+                Ptr = fopen(record_filename, "r+");
                 if ( Ptr == NULL ) {
                     puts("Have no access");
                 } else {
@@ -52,7 +59,7 @@ int main() {
                 }
                 break;
             case 2:
-                Ptr = fopen(filename, "r+");
+                Ptr = fopen(transaction_filename, "r+");
                 if ( Ptr == NULL ) {
                     puts("Have no access");
                 } else {
@@ -63,9 +70,9 @@ int main() {
                 }
                 break;
             case 3:
-                Ptr = fopen("record.dat", "r");
-                Ptr_2 = fopen("transaction.dat", "r");
-                blackrecord = fopen("blackrecord.dat", "w");
+                Ptr = fopen(record_filename, "r");
+                Ptr_2 = fopen(transaction_filename, "r");
+                blackrecord = fopen(blackrecord_filename, "w");
 
                 if (Ptr == NULL || Ptr_2 == NULL) {
                     puts("exit");

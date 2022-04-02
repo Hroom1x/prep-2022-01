@@ -3,10 +3,9 @@
 
 #include <stdio.h>
 
-#define filename "transaction.dat"
-// enum file_names {
-//     //
-// };
+#define transaction_filename "transaction.dat"
+#define record_filename "record.dat"
+#define blackrecord_filename "blackrecord.dat"
 
 struct master_record {
     int number;

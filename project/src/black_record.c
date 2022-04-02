@@ -3,9 +3,31 @@
 #include "utils.h"
 #include "black_record.h"
 
+enum buf_sizes {
+    FORMAT_STRING_MAX_SIZE = 110,
+    NUMBER = 12,
+    NAMES = 11,
+    ADDRESS = 16,
+    TEL_NUMBER = 20,
+    DOUBLE_LENGTH = 12,
+    DOUBLE_ACCURACY = 2
+};
+
 void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord) {
     data_t client_data, transfer;
-    while (fscanf(ofPTR, "%12d%11s%11s%16s%20s%lf%lf%lf", &client_data.number, client_data.name,
+
+    char format_string_blackrecord[FORMAT_STRING_MAX_SIZE];
+    snprintf(format_string_blackrecord, FORMAT_STRING_MAX_SIZE,
+             "%%-%dd%%-%ds%%-%ds%%-%ds%%%ds%%%d.%df%%%d.%df%%%d.%df\n",
+             NUMBER, NAMES, NAMES, ADDRESS, TEL_NUMBER,
+             DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY);
+
+    char format_string_record[FORMAT_STRING_MAX_SIZE];
+    snprintf(format_string_record, FORMAT_STRING_MAX_SIZE,
+             "%%%dd%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
+             NUMBER, NAMES, NAMES, ADDRESS, TEL_NUMBER);
+
+    while (fscanf(ofPTR, format_string_record, &client_data.number, client_data.name,
                   client_data.surname, client_data.address, client_data.tel_number, &client_data.indebtedness,
                   &client_data.credit_limit, &client_data.cash_payments) != -1) {
         while (fscanf(ofPTR_2, "%d %lf", &transfer.number, &transfer.cash_payments) != -1) {
@@ -13,7 +35,7 @@ void blackRecord(FILE *ofPTR, FILE *ofPTR_2, FILE *blackrecord) {
                 client_data.credit_limit += transfer.cash_payments;
             }
         }
-        fprintf(blackrecord, "%-12d%-11s%-11s%-16s%20s%12.2f%12.2f%12.2f\n", client_data.number,
+        fprintf(blackrecord, format_string_blackrecord, client_data.number,
                 client_data.name, client_data.surname, client_data.address, client_data.tel_number,
                 client_data.indebtedness, client_data.credit_limit, client_data.cash_payments);
         rewind(ofPTR_2);
