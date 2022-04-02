@@ -10,9 +10,9 @@ enum buf_sizes {
     CASH_PAYMENTS_ACCURACY = 2
 };
 
-void transaction_write(FILE *ofPtr, data_t transfer) {
+void transaction_write(FILE *ofPtr, data_t *transfer) {
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%-%dd%%-%d.%df\n",
              NUMBER, CASH_PAYMENTS_LENGTH, CASH_PAYMENTS_ACCURACY);
-    fprintf(ofPtr, format_string, transfer.number, transfer.cash_payments);
+    fprintf(ofPtr, format_string, transfer->number, transfer->cash_payments);
 }

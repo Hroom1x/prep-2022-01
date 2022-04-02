@@ -5,6 +5,6 @@
 
 #include "utils.h"
 
-void transaction_write(FILE *ofPtr, data_t transfer);
+void transaction_write(FILE *ofPtr, data_t *transfer);
 
 #endif  // PROJECT_INCLUDE_TRANSACTION_WRITE_H_

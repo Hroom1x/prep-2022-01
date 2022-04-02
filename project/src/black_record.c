@@ -41,4 +41,3 @@ void black_record(FILE *ofPTR, FILE *ofPTR_2, FILE *Blackrecord) {
         rewind(ofPTR_2);
     }
 }
-
