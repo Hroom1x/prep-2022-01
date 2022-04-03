@@ -2,9 +2,9 @@
 #include <stdlib.h>
 
 #include "utils.h"
-#include "black_record.h"
 #include "transaction_write.h"
 #include "master_write.h"
+#include "update_data.h"
 
 // TODO(me): написать тест
 
@@ -14,9 +14,6 @@ enum buf_sizes {
     SURNAME = 20,
     ADDRESS = 30,
     TEL_NUMBER = 15,
-
-    NUM_CLIENT_DATA_ARGS = 8,
-    NUM_TRANSFER_ARGS = 2,
 
     ERR_WRONG_INPUT = -101,
     ERR_WRONG_POINTER = -102
@@ -38,26 +35,42 @@ int write_to_file_transfer(FILE *Ptr, data_t *data) {
     return 0;
 }
 
-int read_from_file(const char *filename, data_t *data_array) {
-    if (!filename) {
-        return ERR_WRONG_POINTER;
+data_t *read_from_file_record(FILE *Ptr) {
+    if (!Ptr) {
+        return NULL;
     }
-    if (!data_array) {
-        return ERR_WRONG_INPUT;
-    }
-    int data_size = 1;
-    data_array = malloc(data_size * sizeof(data_t));
+    size_t data_size = 1;
+    data_t *data_array = malloc(data_size * sizeof(data_t));
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
              NAME, SURNAME, ADDRESS, TEL_NUMBER);
-    FILE *Ptr = fopen(filename, "r");
-    while (fscanf(Ptr, format_string, &data_array[data_size - 1].number, data_array[data_size - 1].name,
-                  data_array[data_size - 1].surname, data_array[data_size - 1].address,
-                  data_array[data_size - 1].tel_number, &data_array[data_size - 1].indebtedness,
-                  &data_array[data_size - 1].credit_limit, &data_array[data_size - 1].cash_payments) != -1) {
-        data_array = realloc(data_array, data_size++);
+    unsigned int id = 0;
+    while (fscanf(Ptr, format_string, &data_array[id].number, data_array[id].name,
+                  data_array[id].surname, data_array[id].address,
+                  data_array[id].tel_number, &data_array[id].indebtedness,
+                  &data_array[id].credit_limit, &data_array[id].cash_payments) != -1) {
+        ++id;
+        data_size += sizeof(data_t);
+        data_array = realloc(data_array, data_size);
     }
-    return 0;
+    return data_array;
+}
+
+data_t *read_from_file_transfer(FILE *Ptr) {
+    if (!Ptr) {
+        return NULL;
+    }
+    size_t data_size = 1;
+    data_t *data_array = malloc(data_size * sizeof(data_t));
+    char format_string[FORMAT_STRING_MAX_SIZE];
+    snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%lf\n");
+    unsigned int id = 0;
+    while (fscanf(Ptr, format_string, &data_array[id].number, &data_array[id].cash_payments) != -1) {
+        data_size += sizeof(data_t);
+        data_array = realloc(data_array, data_size);
+        ++id;
+    }
+    return data_array;
 }
 
 data_t *input_data_record() {
@@ -95,36 +108,6 @@ data_t *input_data_transfer() {
         return NULL;
     }
 }
-
-/* int input_client_data(FILE *Ptr) {
-    if (!Ptr) {
-        return ERR_WRONG_POINTER;
-    }
-    data_t *Client;
-    char format_string[FORMAT_STRING_MAX_SIZE];
-    snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
-             NAME, SURNAME, ADDRESS, TEL_NUMBER);
-    printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
-           "1 Number account: ",
-           "2 Client name: ",
-           "3 Surname: ",
-           "4 address client: ",
-           "5 Client Telnum: ",
-           "6 Client indebtedness: ",
-           "7 Client credit limit: ",
-           "8 Client cash payments: ");
-    int res = scanf(format_string, &Client->number, Client->name, Client->surname, Client->address,
-                    Client->tel_number, &Client->indebtedness, &Client->credit_limit, &Client->cash_payments);
-    while (res != -1) {
-        if (res != NUM_CLIENT_DATA_ARGS) {
-            return ERR_WRONG_INPUT;
-        }
-        master_write(Ptr, Client);
-        res = scanf(format_string, &Client->number, Client->name, Client->surname, Client->address,
-                    Client->tel_number, &Client->indebtedness, &Client->credit_limit, &Client->cash_payments);
-    }
-    return 0;
-} */
 
 int main() {
     int choice = 0;
@@ -164,15 +147,27 @@ int main() {
                 Ptr = fopen(record_filename, "r");
                 Ptr_2 = fopen(transaction_filename, "r");
                 Blackrecord = fopen(blackrecord_filename, "w");
-
                 if (Ptr == NULL || Ptr_2 == NULL) {
+                    puts("exit");
+                } else {
+                    data_t *data_record_list = read_from_file_record(Ptr);
+                    data_t *data_transfer_list = read_from_file_transfer(Ptr_2);
+                    update_data(Blackrecord, data_record_list, data_transfer_list);
+                    free(data_record_list);
+                    free(data_transfer_list);
+                }
+                fclose(Ptr);
+                fclose(Ptr_2);
+                fclose(Blackrecord);
+
+                /* if (Ptr == NULL || Ptr_2 == NULL) {
                     puts("exit");
                 } else {
                     black_record(Ptr, Ptr_2, Blackrecord);
                     fclose(Ptr);
                     fclose(Ptr_2);
                     fclose(Blackrecord);
-                }
+                } */
                 break;
             default:
                 puts("error");
