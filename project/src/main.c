@@ -15,8 +15,7 @@ enum buf_sizes {
     ADDRESS = 30,
     TEL_NUMBER = 15,
 
-    ERR_WRONG_INPUT = -101,
-    ERR_WRONG_POINTER = -102
+    ERR_WRONG_POINTER = -2
 };
 
 int write_to_file_record(FILE *Ptr, data_t *data) {
@@ -49,9 +48,15 @@ data_t *read_from_file_record(FILE *Ptr) {
                   data_array[id].surname, data_array[id].address,
                   data_array[id].tel_number, &data_array[id].indebtedness,
                   &data_array[id].credit_limit, &data_array[id].cash_payments) != -1) {
-        ++id;
         data_size += sizeof(data_t);
-        data_array = realloc(data_array, data_size);
+        void * tmp = realloc(data_array, data_size);
+        if (NULL == tmp) {
+            free(data_array);
+            data_array = NULL;
+        } else {
+            data_array = tmp;
+        }
+        ++id;
     }
     return data_array;
 }
@@ -67,7 +72,13 @@ data_t *read_from_file_transfer(FILE *Ptr) {
     unsigned int id = 0;
     while (fscanf(Ptr, format_string, &data_array[id].number, &data_array[id].cash_payments) != -1) {
         data_size += sizeof(data_t);
-        data_array = realloc(data_array, data_size);
+        void * tmp = realloc(data_array, data_size);
+        if (NULL == tmp) {
+            free(data_array);
+            data_array = NULL;
+        } else {
+            data_array = tmp;
+        }
         ++id;
     }
     return data_array;
@@ -92,6 +103,7 @@ data_t *input_data_record() {
           data->tel_number, &data->indebtedness, &data->credit_limit, &data->cash_payments) != -1) {
         return data;
     } else {
+        free(data);
         return NULL;
     }
 }
@@ -105,6 +117,7 @@ data_t *input_data_transfer() {
     if (scanf("%d %lf", &data->number, &data->cash_payments) != -1) {
         return data;
     } else {
+        free(data);
         return NULL;
     }
 }
@@ -113,7 +126,7 @@ int main() {
     int choice = 0;
     int res = 0;
     FILE *Ptr, *Ptr_2, *Blackrecord = NULL;
-    data_t /* *data_array, */ *record;
+    data_t *record;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     while (scanf("%d", &choice) != -1) {
         switch (choice) {
@@ -127,8 +140,8 @@ int main() {
                         write_to_file_record(Ptr, record);
                         record = input_data_record();
                     }
+                    fclose(Ptr);
                 }
-                fclose(Ptr);
                 break;
             case 2:
                 Ptr = fopen(transaction_filename, "a");
@@ -140,8 +153,8 @@ int main() {
                         write_to_file_transfer(Ptr, record);
                         record = input_data_transfer();
                     }
+                    fclose(Ptr);
                 }
-                fclose(Ptr);
                 break;
             case 3:
                 Ptr = fopen(record_filename, "r");
@@ -155,19 +168,10 @@ int main() {
                     update_data(Blackrecord, data_record_list, data_transfer_list);
                     free(data_record_list);
                     free(data_transfer_list);
-                }
-                fclose(Ptr);
-                fclose(Ptr_2);
-                fclose(Blackrecord);
-
-                /* if (Ptr == NULL || Ptr_2 == NULL) {
-                    puts("exit");
-                } else {
-                    black_record(Ptr, Ptr_2, Blackrecord);
                     fclose(Ptr);
                     fclose(Ptr_2);
                     fclose(Blackrecord);
-                } */
+                }
                 break;
             default:
                 puts("error");

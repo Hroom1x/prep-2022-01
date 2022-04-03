@@ -5,8 +5,8 @@ SRCS = \
 		project/src/main.c \
 		project/src/master_write.c \
 		project/src/transaction_write.c \
-		project/src/black_record.c \
-		project/src/update_data.c
+		project/src/update_data.c \
+		test_module.c
 
 .PHONY: all build rebuild check test memtest clean
 

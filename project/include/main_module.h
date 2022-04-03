@@ -1,9 +1,11 @@
-#ifndef HOMEWORK_MAIN_MODULE_H
-#define HOMEWORK_MAIN_MODULE_H
+#ifndef PROJECT_INCLUDE_MAIN_MODULE_H_
+#define PROJECT_INCLUDE_MAIN_MODULE_H_
 
 #include <stdio.h>
 
-int input_client_data(FILE *Ptr);
-int input_transfer(FILE *Ptr);
+#include "utils.h"
 
-#endif //HOMEWORK_MAIN_MODULE_H
+int write_to_file_record(FILE *Ptr, data_t *data);
+int write_to_file_transfer(FILE *Ptr, data_t *data);
+
+#endif  // PROJECT_INCLUDE_MAIN_MODULE_H_

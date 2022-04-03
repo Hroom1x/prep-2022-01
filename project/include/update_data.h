@@ -1,8 +1,8 @@
-#ifndef HOMEWORK_UPDATE_DATA_H
-#define HOMEWORK_UPDATE_DATA_H
+#ifndef PROJECT_INCLUDE_UPDATE_DATA_H_
+#define PROJECT_INCLUDE_UPDATE_DATA_H_
 
 #include "utils.h"
 
-void update_data(FILE *Blackrecord, data_t *data_record_list, data_t *data_transfer_list);
+void update_data(FILE *Blackrecord, data_t *record_list, data_t *transfer_list);
 
-#endif //HOMEWORK_UPDATE_DATA_H
+#endif  // PROJECT_INCLUDE_UPDATE_DATA_H_
