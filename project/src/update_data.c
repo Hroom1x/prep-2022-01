@@ -11,7 +11,10 @@ enum buf_sizes {
     DOUBLE_ACCURACY = 2
 };
 
-void update_data(FILE *Blackrecord, data_t *record_list, data_t *transfer_list) {
+int update_data(FILE *Blackrecord, data_t *record_list, data_t *transfer_list) {
+    if (!Blackrecord || !record_list || !transfer_list) {
+        return ERR_WRONG_POINTER;
+    }
     char format_string_blackrecord[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string_blackrecord, FORMAT_STRING_MAX_SIZE,
              "%%-%dd%%-%ds%%-%ds%%-%ds%%%ds%%%d.%df%%%d.%df%%%d.%df\n",
@@ -32,4 +35,5 @@ void update_data(FILE *Blackrecord, data_t *record_list, data_t *transfer_list) 
                 record_list[id].credit_limit, record_list[id].cash_payments);
         ++id;
     }
+    return 0;
 }

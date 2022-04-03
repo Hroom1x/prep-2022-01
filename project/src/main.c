@@ -6,40 +6,34 @@
 #include "master_write.h"
 #include "update_data.h"
 
-// TODO(me): написать тест
-
 enum buf_sizes {
     FORMAT_STRING_MAX_SIZE = 110,
     NAME = 20,
     SURNAME = 20,
     ADDRESS = 30,
     TEL_NUMBER = 15,
-
-    ERR_WRONG_POINTER = -2
 };
 
 int write_to_file_record(FILE *Ptr, data_t *data) {
     if (!Ptr) {
         return ERR_WRONG_POINTER;
     }
-    master_write(Ptr, data);
-    return 0;
+    return master_write(Ptr, data);
 }
 
 int write_to_file_transfer(FILE *Ptr, data_t *data) {
     if (!Ptr) {
         return ERR_WRONG_POINTER;
     }
-    transaction_write(Ptr, data);
-    return 0;
+    return transaction_write(Ptr, data);
 }
 
 data_t *read_from_file_record(FILE *Ptr) {
     if (!Ptr) {
         return NULL;
     }
-    size_t data_size = 1;
-    data_t *data_array = malloc(data_size * sizeof(data_t));
+    size_t data_size = sizeof(data_t);
+    data_t *data_array = malloc(data_size);
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
              NAME, SURNAME, ADDRESS, TEL_NUMBER);
@@ -49,8 +43,8 @@ data_t *read_from_file_record(FILE *Ptr) {
                   data_array[id].tel_number, &data_array[id].indebtedness,
                   &data_array[id].credit_limit, &data_array[id].cash_payments) != -1) {
         data_size += sizeof(data_t);
-        void * tmp = realloc(data_array, data_size);
-        if (NULL == tmp) {
+        void *tmp = realloc(data_array, data_size);
+        if (tmp == NULL) {
             free(data_array);
             data_array = NULL;
         } else {
@@ -65,8 +59,8 @@ data_t *read_from_file_transfer(FILE *Ptr) {
     if (!Ptr) {
         return NULL;
     }
-    size_t data_size = 1;
-    data_t *data_array = malloc(data_size * sizeof(data_t));
+    size_t data_size = sizeof(data_t);
+    data_t *data_array = malloc(data_size);
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%lf\n");
     unsigned int id = 0;
@@ -85,8 +79,7 @@ data_t *read_from_file_transfer(FILE *Ptr) {
 }
 
 data_t *input_data_record() {
-    data_t *data;
-    data = malloc(sizeof(data_t));
+    data_t *data = malloc(sizeof(data_t));
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
              NAME, SURNAME, ADDRESS, TEL_NUMBER);
@@ -109,8 +102,7 @@ data_t *input_data_record() {
 }
 
 data_t *input_data_transfer() {
-    data_t *data;
-    data = malloc(sizeof(data_t));
+    data_t *data = malloc(sizeof(data_t));
     printf("%s\n%s\n",
            "1 Number account: ",
            "2 Client cash payments: ");
@@ -124,7 +116,6 @@ data_t *input_data_transfer() {
 
 int main() {
     int choice = 0;
-    int res = 0;
     FILE *Ptr, *Ptr_2, *Blackrecord = NULL;
     data_t *record;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
@@ -137,7 +128,9 @@ int main() {
                 } else {
                     record = input_data_record();
                     while (record != NULL) {
-                        write_to_file_record(Ptr, record);
+                        if (write_to_file_record(Ptr, record) != 0) {
+                            return ERR_WRONG_POINTER;
+                        }
                         record = input_data_record();
                     }
                     fclose(Ptr);
@@ -150,7 +143,9 @@ int main() {
                 } else {
                     record = input_data_transfer();
                     while (record != NULL) {
-                        write_to_file_transfer(Ptr, record);
+                        if (write_to_file_transfer(Ptr, record) != 0) {
+                            return ERR_WRONG_POINTER;
+                        }
                         record = input_data_transfer();
                     }
                     fclose(Ptr);
@@ -179,5 +174,5 @@ int main() {
         }
         printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     }
-    return res;
+    return 0;
 }

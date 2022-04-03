@@ -13,7 +13,10 @@ enum buf_sizes {
     DOUBLE_ACCURACY = 2
 };
 
-void master_write(FILE *ofPTR, data_t *Client) {
+int master_write(FILE *ofPTR, data_t *Client) {
+    if (!ofPTR || !Client) {
+        return ERR_WRONG_POINTER;
+    }
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE,
              "%%-%dd%%-%ds%%-%ds%%-%ds%%%ds%%%d.%df%%%d.%df%%%d.%df\n",
@@ -22,4 +25,5 @@ void master_write(FILE *ofPTR, data_t *Client) {
     fprintf(ofPTR, format_string, Client->number, Client->name,
             Client->surname, Client->address, Client->tel_number, Client->indebtedness, Client->credit_limit,
             Client->cash_payments);
+    return 0;
 }

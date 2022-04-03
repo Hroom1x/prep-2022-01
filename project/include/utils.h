@@ -7,6 +7,10 @@
 #define record_filename "record.dat"
 #define blackrecord_filename "blackrecord.dat"
 
+enum ERRORS {
+    ERR_WRONG_POINTER = -10
+};
+
 struct master_record {
     int number;
     char name[20];
