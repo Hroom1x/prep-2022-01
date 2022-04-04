@@ -22,13 +22,13 @@ int update_data(FILE *Blackrecord, data_t *record_list, data_t *transfer_list) {
              DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY);
 
     unsigned int id = 0;
-    while (transfer_list[id].number != 0) {
+    while (transfer_list[id].number != -1) {
         record_list[transfer_list[id].number - 1].credit_limit += transfer_list[id].cash_payments;
         ++id;
     }
 
     id = 0;
-    while (record_list[id].number != 0) {
+    while (record_list[id].number != -1) {
         fprintf(Blackrecord, format_string_blackrecord, record_list[id].number,
                 record_list[id].name, record_list[id].surname, record_list[id].address,
                 record_list[id].tel_number, record_list[id].indebtedness,

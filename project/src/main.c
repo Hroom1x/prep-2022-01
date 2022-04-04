@@ -6,6 +6,8 @@
 #include "master_write.h"
 #include "update_data.h"
 
+//TODO(ME): Дописать в список из read_from_file замыкающий нулевой элемент
+
 enum buf_sizes {
     FORMAT_STRING_MAX_SIZE = 110,
     NAME = 20,
@@ -52,6 +54,7 @@ data_t *read_from_file_record(FILE *Ptr) {
         }
         ++id;
     }
+    data_array[id].number = -1;
     return data_array;
 }
 
@@ -66,8 +69,8 @@ data_t *read_from_file_transfer(FILE *Ptr) {
     unsigned int id = 0;
     while (fscanf(Ptr, format_string, &data_array[id].number, &data_array[id].cash_payments) != -1) {
         data_size += sizeof(data_t);
-        void * tmp = realloc(data_array, data_size);
-        if (NULL == tmp) {
+        void *tmp = realloc(data_array, data_size);
+        if (tmp == NULL) {
             free(data_array);
             data_array = NULL;
         } else {
@@ -75,6 +78,7 @@ data_t *read_from_file_transfer(FILE *Ptr) {
         }
         ++id;
     }
+    data_array[id].number = -1;
     return data_array;
 }
 
@@ -131,6 +135,7 @@ int main() {
                         if (write_to_file_record(Ptr, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
+                        free(record);
                         record = input_data_record();
                     }
                     fclose(Ptr);
@@ -146,6 +151,7 @@ int main() {
                         if (write_to_file_transfer(Ptr, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
+                        free(record);
                         record = input_data_transfer();
                     }
                     fclose(Ptr);
