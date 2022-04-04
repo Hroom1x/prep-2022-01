@@ -8,7 +8,7 @@
 #define blackrecord_filename "blackrecord.dat"
 
 enum ERRORS {
-    ERR_WRONG_POINTER = -10
+    ERR_WRONG_POINTER = -1
 };
 
 struct master_record {

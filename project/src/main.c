@@ -5,8 +5,7 @@
 #include "transaction_write.h"
 #include "master_write.h"
 #include "update_data.h"
-
-//TODO(ME): Дописать в список из read_from_file замыкающий нулевой элемент
+#include "test_module.h"
 
 enum buf_sizes {
     FORMAT_STRING_MAX_SIZE = 110,
@@ -48,7 +47,7 @@ data_t *read_from_file_record(FILE *Ptr) {
         void *tmp = realloc(data_array, data_size);
         if (tmp == NULL) {
             free(data_array);
-            data_array = NULL;
+            return NULL;
         } else {
             data_array = tmp;
         }
@@ -72,7 +71,7 @@ data_t *read_from_file_transfer(FILE *Ptr) {
         void *tmp = realloc(data_array, data_size);
         if (tmp == NULL) {
             free(data_array);
-            data_array = NULL;
+            return NULL;
         } else {
             data_array = tmp;
         }
@@ -180,5 +179,6 @@ int main() {
         }
         printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     }
+    test_write_to_file();
     return 0;
 }
