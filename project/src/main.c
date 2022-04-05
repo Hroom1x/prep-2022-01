@@ -5,7 +5,6 @@
 #include "transaction_write.h"
 #include "master_write.h"
 #include "update_data.h"
-#include "test_module.h"
 
 enum buf_sizes {
     FORMAT_STRING_MAX_SIZE = 110,
@@ -179,6 +178,5 @@ int main() {
         }
         printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     }
-    test_write_to_file();
     return 0;
 }
