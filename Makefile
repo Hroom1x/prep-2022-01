@@ -1,4 +1,5 @@
 TARGET = ./main.out
+UTARGET = project/test/main_test.out
 HDRS_DIR = project/include
 
 SRCS = \
@@ -8,14 +9,24 @@ SRCS = \
 		project/src/update_data.c \
 		project/src/file_reader.c
 
-.PHONY: all build rebuild check test memtest clean
+USRCS = \
+		project/src/master_write.c \
+        project/src/transaction_write.c \
+        project/src/update_data.c \
+        project/src/file_reader.c \
+        project/test/main_test.c
 
-all: clean check test memtest
+.PHONY: all build rebuild check test utest memtest clean
+
+all: clean check test utest memtest
 
 $(TARGET): $(SRCS)
 	$(CC) -Wpedantic -Wall -Wextra -Werror -I $(HDRS_DIR) -o $(TARGET) $(CFLAGS) $(SRCS)
 
-build: $(TARGET)
+$(UTARGET):
+	$(CC) -Wpedantic -Wall -Wextra -Werror -I $(HDRS_DIR) -o $(UTARGET) $(CFLAGS) $(USRCS)
+
+build: $(TARGET) $(UTARGET)
 
 rebuild: clean build
 
@@ -25,8 +36,11 @@ check:
 test: $(TARGET)
 	./btests/run.sh $(TARGET)
 
+utest: $(UTARGET)
+	./project/test/run.sh $(UTARGET)
+
 memtest: $(TARGET)
 	./btests/run.sh $(TARGET) --memcheck
 
 clean:
-	rm -rf $(TARGET) *.dat
+	rm -rf $(TARGET) $(UTARGET) *.dat
