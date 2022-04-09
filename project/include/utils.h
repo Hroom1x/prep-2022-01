@@ -5,7 +5,7 @@
 
 #define transaction_filename "transaction.dat"
 #define record_filename "record.dat"
-#define blackrecord_filename "blackrecord.dat"
+#define actual_record_filename "actual_record.dat"
 
 enum ERRORS {
     ERR_WRONG_POINTER = -1

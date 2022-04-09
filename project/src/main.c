@@ -53,58 +53,58 @@ data_t *input_data_transfer() {
 
 int main() {
     int choice = 0;
-    FILE *Ptr, *Ptr_2, *Blackrecord = NULL;
+    FILE *ptr, *ptr_2, *blackrecord = NULL;
     data_t *record;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     while (scanf("%d", &choice) != -1) {
         switch (choice) {
             case 1:
-                Ptr = fopen(record_filename, "a");
-                if ( Ptr == NULL ) {
+                ptr = fopen(record_filename, "a");
+                if (ptr == NULL) {
                     puts("Have no access");
                 } else {
                     record = input_data_record();
                     while (record != NULL) {
-                        if (master_write(Ptr, record) != 0) {
+                        if (master_write(ptr, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
                         free(record);
                         record = input_data_record();
                     }
-                    fclose(Ptr);
+                    fclose(ptr);
                 }
                 break;
             case 2:
-                Ptr = fopen(transaction_filename, "a");
-                if ( Ptr == NULL ) {
+                ptr = fopen(transaction_filename, "a");
+                if (ptr == NULL) {
                     puts("Have no access");
                 } else {
                     record = input_data_transfer();
                     while (record != NULL) {
-                        if (transaction_write(Ptr, record) != 0) {
+                        if (transaction_write(ptr, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
                         free(record);
                         record = input_data_transfer();
                     }
-                    fclose(Ptr);
+                    fclose(ptr);
                 }
                 break;
             case 3:
-                Ptr = fopen(record_filename, "r");
-                Ptr_2 = fopen(transaction_filename, "r");
-                Blackrecord = fopen(blackrecord_filename, "w");
-                if (Ptr == NULL || Ptr_2 == NULL) {
+                ptr = fopen(record_filename, "r");
+                ptr_2 = fopen(transaction_filename, "r");
+                blackrecord = fopen(actual_record_filename, "w");
+                if (ptr == NULL || ptr_2 == NULL) {
                     puts("exit");
                 } else {
-                    data_t *data_record_list = read_from_file_record(Ptr);
-                    data_t *data_transfer_list = read_from_file_transfer(Ptr_2);
-                    update_data(Blackrecord, data_record_list, data_transfer_list);
+                    data_t *data_record_list = read_from_file_record(ptr);
+                    data_t *data_transfer_list = read_from_file_transfer(ptr_2);
+                    update_data(blackrecord, data_record_list, data_transfer_list);
                     free(data_record_list);
                     free(data_transfer_list);
-                    fclose(Ptr);
-                    fclose(Ptr_2);
-                    fclose(Blackrecord);
+                    fclose(ptr);
+                    fclose(ptr_2);
+                    fclose(blackrecord);
                 }
                 break;
             default:

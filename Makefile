@@ -1,5 +1,5 @@
 TARGET = ./main.out
-UTARGET = project/test/main_test.out
+UTARGET = project/test/main_test.o
 HDRS_DIR = project/include
 
 SRCS = \
@@ -37,7 +37,8 @@ test: $(TARGET)
 	./btests/run.sh $(TARGET)
 
 utest: $(UTARGET)
-	./project/test/run.sh $(UTARGET)
+	eval "$(UTARGET)"
+	@rm -rf $(UTARGET) *.dat
 
 memtest: $(TARGET)
 	./btests/run.sh $(TARGET) --memcheck

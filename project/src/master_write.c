@@ -13,8 +13,8 @@ enum buf_sizes {
     DOUBLE_ACCURACY = 2
 };
 
-int master_write(FILE *ofPTR, data_t *Client) {
-    if (!ofPTR || !Client) {
+int master_write(FILE *record_file, data_t *client) {
+    if (!record_file || !client) {
         return ERR_WRONG_POINTER;
     }
     char format_string[FORMAT_STRING_MAX_SIZE];
@@ -22,8 +22,8 @@ int master_write(FILE *ofPTR, data_t *Client) {
              "%%-%dd%%-%ds%%-%ds%%-%ds%%%ds%%%d.%df%%%d.%df%%%d.%df\n",
              NUMBER, NAMES, NAMES, ADDRESS, TEL_NUMBER,
              DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY, DOUBLE_LENGTH, DOUBLE_ACCURACY);
-    fprintf(ofPTR, format_string, Client->number, Client->name,
-            Client->surname, Client->address, Client->tel_number, Client->indebtedness, Client->credit_limit,
-            Client->cash_payments);
+    fprintf(record_file, format_string, client->number, client->name,
+            client->surname, client->address, client->tel_number, client->indebtedness, client->credit_limit,
+            client->cash_payments);
     return 0;
 }

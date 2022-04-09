@@ -5,6 +5,6 @@
 
 #include "utils.h"
 
-int master_write(FILE *ofPTR, data_t *Client);
+int master_write(FILE *record_file, data_t *client);
 
 #endif  // PROJECT_INCLUDE_MASTER_WRITE_H_
