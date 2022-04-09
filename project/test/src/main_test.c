@@ -7,8 +7,8 @@
 #include "master_write.h"
 #include "file_reader.h"
 
-#define TEST_RECORD_FILENAME "project/test/record.dat"
-#define TEST_TRANSFER_FILENAME "project/test/transfer.dat"
+#define TEST_RECORD_FILENAME "record.dat"
+#define TEST_TRANSFER_FILENAME "transfer.dat"
 
 data_t test_record = {
         2,
@@ -55,8 +55,8 @@ int compare_transfers(data_t transfer1, data_t transfer2) {
 }
 
 int main() {
-    FILE *record_file = fopen(TEST_RECORD_FILENAME, "r+");
-    FILE *transfer_file = fopen(TEST_TRANSFER_FILENAME, "r+");
+    FILE *record_file = fopen(TEST_RECORD_FILENAME, "w+");
+    FILE *transfer_file = fopen(TEST_TRANSFER_FILENAME, "w+");
 
     master_write(record_file, &test_record);
     transaction_write(transfer_file, &test_transfer);
