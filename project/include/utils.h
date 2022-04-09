@@ -3,15 +3,23 @@
 
 #include <stdio.h>
 
-#define transaction_filename "transaction.dat"
-#define record_filename "record.dat"
-#define actual_record_filename "actual_record.dat"
+#define TRANSACTION_FILENAME "transaction.dat"
+#define RECORD_FILENAME "record.dat"
+#define ACTUAL_RECORD_FILENAME "actual_record.dat"
 
-enum ERRORS {
+#define FORMAT_STRING_MAX_SIZE 110
+#define NUMBER 12
+#define NAMES 11
+#define ADDRESS 16
+#define TEL_NUMBER 20
+#define DOUBLE_LENGTH 12
+#define DOUBLE_ACCURACY 2
+
+enum errors {
     ERR_WRONG_POINTER = -1
 };
 
-struct master_record {
+typedef struct data {
     int number;
     char name[20];
     char surname[20];
@@ -20,8 +28,6 @@ struct master_record {
     double indebtedness;
     double credit_limit;
     double cash_payments;
-};
-
-typedef struct master_record data_t;
+} data_t;
 
 #endif  // PROJECT_INCLUDE_UTILS_H_

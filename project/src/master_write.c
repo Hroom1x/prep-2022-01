@@ -3,15 +3,15 @@
 #include "utils.h"
 #include "master_write.h"
 
-enum buf_sizes {
-    FORMAT_STRING_MAX_SIZE = 110,
-    NUMBER = 12,
-    NAMES = 11,
-    ADDRESS = 16,
-    TEL_NUMBER = 20,
-    DOUBLE_LENGTH = 12,
-    DOUBLE_ACCURACY = 2
-};
+// enum buf_sizes {
+//     FORMAT_STRING_MAX_SIZE = 110,
+//     NUMBER = 12,
+//     NAMES = 11,
+//     ADDRESS = 16,
+//     TEL_NUMBER = 20,
+//     DOUBLE_LENGTH = 12,
+//     DOUBLE_ACCURACY = 2
+// };
 
 int master_write(FILE *record_file, data_t *client) {
     if (!record_file || !client) {

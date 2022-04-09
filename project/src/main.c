@@ -7,19 +7,17 @@
 #include "update_data.h"
 #include "file_reader.h"
 
-enum buf_sizes {
-    FORMAT_STRING_MAX_SIZE = 110,
-    NAME = 20,
-    SURNAME = 20,
-    ADDRESS = 30,
-    TEL_NUMBER = 15,
+enum choices {
+    MAKE_RECORD = 1,
+    MAKE_TRANSFER,
+    UPDATE_DATA
 };
 
-data_t *input_data_record() {
+static data_t *input_data_record() {
     data_t *data = malloc(sizeof(data_t));
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
-             NAME, SURNAME, ADDRESS, TEL_NUMBER);
+             NAMES, NAMES, ADDRESS, TEL_NUMBER);
     printf("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n\n",
            "1 Number account: ",
            "2 Client name: ",
@@ -38,7 +36,7 @@ data_t *input_data_record() {
     }
 }
 
-data_t *input_data_transfer() {
+static data_t *input_data_transfer() {
     data_t *data = malloc(sizeof(data_t));
     printf("%s\n%s\n",
            "1 Number account: ",
@@ -53,58 +51,58 @@ data_t *input_data_transfer() {
 
 int main() {
     int choice = 0;
-    FILE *ptr, *ptr_2, *blackrecord = NULL;
+    FILE *record_file, *transfer_file, *actual_file = NULL;
     data_t *record;
     printf("%s", "please enter action\n1 enter data client:\n2 enter data transaction:\n3 update base\n");
     while (scanf("%d", &choice) != -1) {
         switch (choice) {
-            case 1:
-                ptr = fopen(record_filename, "a");
-                if (ptr == NULL) {
+            case MAKE_RECORD:
+                record_file = fopen(RECORD_FILENAME, "a");
+                if (record_file == NULL) {
                     puts("Have no access");
                 } else {
                     record = input_data_record();
                     while (record != NULL) {
-                        if (master_write(ptr, record) != 0) {
+                        if (master_write(record_file, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
                         free(record);
                         record = input_data_record();
                     }
-                    fclose(ptr);
+                    fclose(record_file);
                 }
                 break;
-            case 2:
-                ptr = fopen(transaction_filename, "a");
-                if (ptr == NULL) {
+            case MAKE_TRANSFER:
+                transfer_file = fopen(TRANSACTION_FILENAME, "a");
+                if (transfer_file == NULL) {
                     puts("Have no access");
                 } else {
                     record = input_data_transfer();
                     while (record != NULL) {
-                        if (transaction_write(ptr, record) != 0) {
+                        if (transaction_write(transfer_file, record) != 0) {
                             return ERR_WRONG_POINTER;
                         }
                         free(record);
                         record = input_data_transfer();
                     }
-                    fclose(ptr);
+                    fclose(transfer_file);
                 }
                 break;
-            case 3:
-                ptr = fopen(record_filename, "r");
-                ptr_2 = fopen(transaction_filename, "r");
-                blackrecord = fopen(actual_record_filename, "w");
-                if (ptr == NULL || ptr_2 == NULL) {
+            case UPDATE_DATA:
+                record_file = fopen(RECORD_FILENAME, "r");
+                transfer_file = fopen(TRANSACTION_FILENAME, "r");
+                actual_file = fopen(ACTUAL_RECORD_FILENAME, "w");
+                if (record_file == NULL || transfer_file == NULL) {
                     puts("exit");
                 } else {
-                    data_t *data_record_list = read_from_file_record(ptr);
-                    data_t *data_transfer_list = read_from_file_transfer(ptr_2);
-                    update_data(blackrecord, data_record_list, data_transfer_list);
+                    data_t *data_record_list = read_from_file_record(record_file);
+                    data_t *data_transfer_list = read_from_file_transfer(transfer_file);
+                    update_data(actual_file, data_record_list, data_transfer_list);
                     free(data_record_list);
                     free(data_transfer_list);
-                    fclose(ptr);
-                    fclose(ptr_2);
-                    fclose(blackrecord);
+                    fclose(record_file);
+                    fclose(transfer_file);
+                    fclose(actual_file);
                 }
                 break;
             default:

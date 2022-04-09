@@ -2,14 +2,6 @@
 
 #include "file_reader.h"
 
-enum buf_sizes {
-    FORMAT_STRING_MAX_SIZE = 110,
-    NAME = 20,
-    SURNAME = 20,
-    ADDRESS = 30,
-    TEL_NUMBER = 15,
-};
-
 data_t *read_from_file_record(FILE *record_file) {
     if (!record_file) {
         return NULL;
@@ -18,7 +10,7 @@ data_t *read_from_file_record(FILE *record_file) {
     data_t *data_array = malloc(data_size);
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
-             NAME, SURNAME, ADDRESS, TEL_NUMBER);
+             NAMES, NAMES, ADDRESS, TEL_NUMBER);
     unsigned int id = 0;
     while (fscanf(record_file, format_string, &data_array[id].number, data_array[id].name,
                   data_array[id].surname, data_array[id].address,

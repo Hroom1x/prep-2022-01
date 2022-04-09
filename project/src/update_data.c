@@ -1,16 +1,6 @@
 #include "update_data.h"
 #include "utils.h"
 
-enum buf_sizes {
-    FORMAT_STRING_MAX_SIZE = 110,
-    NUMBER = 12,
-    NAMES = 11,
-    ADDRESS = 16,
-    TEL_NUMBER = 20,
-    DOUBLE_LENGTH = 12,
-    DOUBLE_ACCURACY = 2
-};
-
 int update_data(FILE *blackrecord_file, data_t *record_list, data_t *transfer_list) {
     if (!blackrecord_file || !record_list || !transfer_list) {
         return ERR_WRONG_POINTER;
