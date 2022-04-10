@@ -25,6 +25,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: make test
+  unit_test:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - path: project/test
+      - with:
+          path: make test
   memtest:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind
