@@ -1,8 +1,8 @@
 #include "update_data.h"
 #include "utils.h"
 
-int update_data(FILE *blackrecord_file, data_t *record_list, data_t *transfer_list) {
-    if (!blackrecord_file || !record_list || !transfer_list) {
+int update_data(FILE *actual_data_file, data_t *record_list, data_t *transfer_list) {
+    if (!actual_data_file || !record_list || !transfer_list) {
         return ERR_WRONG_POINTER;
     }
     char format_string_blackrecord[FORMAT_STRING_MAX_SIZE];
@@ -19,7 +19,7 @@ int update_data(FILE *blackrecord_file, data_t *record_list, data_t *transfer_li
 
     id = 0;
     while (record_list[id].number != -1) {
-        fprintf(blackrecord_file, format_string_blackrecord, record_list[id].number,
+        fprintf(actual_data_file, format_string_blackrecord, record_list[id].number,
                 record_list[id].name, record_list[id].surname, record_list[id].address,
                 record_list[id].tel_number, record_list[id].indebtedness,
                 record_list[id].credit_limit, record_list[id].cash_payments);
