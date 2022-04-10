@@ -29,9 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind
     needs: [build]
+    working_directory: ~/project/test
     steps:
       - uses: actions/checkout@v2
-      - run: project/test make test
+      - run: make test
   memtest:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind
