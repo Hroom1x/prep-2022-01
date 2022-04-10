@@ -28,11 +28,11 @@ jobs:
   unit_test:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind
-    needs: [build]
-    working_directory: ~/project/test
     steps:
       - uses: actions/checkout@v2
-      - run: make test
+      - run: |
+          cd project/test
+          make test
   memtest:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind
