@@ -15,6 +15,9 @@ enum choices {
 
 static data_t *input_data_record() {
     data_t *data = malloc(sizeof(data_t));
+    if (data == NULL) {
+        return NULL;
+    }
     char format_string[FORMAT_STRING_MAX_SIZE];
     snprintf(format_string, FORMAT_STRING_MAX_SIZE, "%%i%%%ds%%%ds%%%ds%%%ds%%lf%%lf%%lf\n",
              NAMES, NAMES, ADDRESS, TEL_NUMBER);
@@ -38,6 +41,9 @@ static data_t *input_data_record() {
 
 static data_t *input_data_transfer() {
     data_t *data = malloc(sizeof(data_t));
+    if (data == NULL) {
+        return NULL;
+    }
     printf("%s\n%s\n",
            "1 Number account: ",
            "2 Client cash payments: ");
