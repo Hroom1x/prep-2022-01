@@ -32,6 +32,9 @@ build: $(TARGET)
 test: $(TST_TARGET)
 	$(TST_TARGET)
 
+run: $(TARGET)
+	./main.out
+
 memtest: $(TST_TARGET)
 	./project/tests/memtest.sh ${TST_TARGET}
 

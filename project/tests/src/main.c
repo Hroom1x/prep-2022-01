@@ -5,11 +5,9 @@
 #include "tests.h"
 #include "utils.h"
 
-
 #define ARRAY_SIZE(_a) (sizeof(_a) / sizeof((_a)[0]))
 #define TESTS_DEFAULT_DIR "./project/tests/data"
 #define WITH_EXTRA_ARG "--with-extra"
-
 
 static test_func tests[] = {
     // Init/release/basic operations
