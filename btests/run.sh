@@ -11,10 +11,10 @@ NO_ERROR_PATTERN="ERROR SUMMARY: 0 errors"
 
 RECORDS_F_NAME="record.dat"
 TRANSACTIONS_F_NAME="transaction.dat"
-BLACKRECORDS_F_NAME="blackrecord.dat"
+BLACKRECORDS_F_NAME="actual_record.dat"
 
 function check_mem() {
-	RECEIVED=$(echo "${1}" | eval "valgrind --tool=memcheck --leak-check=summary --log-file=${VALGRIND_LOG} ${PROG_PATH}")
+	RECEIVED=$(echo "${1}" | eval "valgrind --tool=memcheck --leak-check=full --track-origins=yes --log-file=${VALGRIND_LOG} ${PROG_PATH}")
 
 	NO_LOST=$(grep "${NO_LOST_PATTERN}" ${VALGRIND_LOG})
 	NO_ERROR=$(grep "${NO_ERROR_PATTERN}" ${VALGRIND_LOG})
