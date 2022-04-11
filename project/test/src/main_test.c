@@ -27,7 +27,7 @@ data_t test_transfer = {
 };
 
 int compare_records(data_t record1, data_t record2) {
-    if (
+    return (
             (record1.number == record2.number) &&
             !strcmp(record1.name, record2.name) &&
             !strcmp(record1.surname, record2.surname) &&
@@ -36,29 +36,21 @@ int compare_records(data_t record1, data_t record2) {
             (record1.indebtedness == record2.indebtedness) &&
             (record1.credit_limit == record2.credit_limit) &&
             (record1.cash_payments == record2.cash_payments)
-            ) {
-        return 1;
-    } else {
-        return 0;
-    }
+            );
 }
 
 int compare_transfers(data_t transfer1, data_t transfer2) {
-    if (
+    return (
             (transfer1.number == transfer2.number) &&
             (transfer1.cash_payments == transfer2.cash_payments)
-            ) {
-        return 1;
-    } else {
-        return 0;
-    }
+            );
 }
 
 int main() {
     FILE *record_file = fopen(TEST_RECORD_FILENAME, "w+");
     FILE *transfer_file = fopen(TEST_TRANSFER_FILENAME, "w+");
 
-    master_write(record_file, &test_record);
+    record_write(record_file, &test_record);
     transaction_write(transfer_file, &test_transfer);
 
     rewind(record_file);

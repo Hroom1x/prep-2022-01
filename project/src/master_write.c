@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "master_write.h"
 
-int master_write(FILE *record_file, data_t *client) {
+int record_write(FILE *record_file, data_t *client) {
     if (!record_file || !client) {
         return ERR_WRONG_POINTER;
     }

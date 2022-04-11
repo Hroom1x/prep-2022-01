@@ -16,10 +16,13 @@
 #define DOUBLE_ACCURACY 2
 
 enum errors {
-    ERR_WRONG_POINTER = -1
+    ERR_WRONG_POINTER = 1,
+    ERR_MAKE_RECORD,
+    ERR_MAKE_TRANSFER,
+    ERR_UPDATE_DATA
 };
 
-typedef struct data {
+typedef struct {
     int number;
     char name[20];
     char surname[20];
