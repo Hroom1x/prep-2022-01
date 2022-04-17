@@ -1,6 +1,8 @@
 #ifndef PROJECT_INCLUDE_PARSER_H_
 #define PROJECT_INCLUDE_PARSER_H_
 
+char *mail_parse(char *content);
+
 /*
 #ifndef CJSON_H
 #define CJSON_H
