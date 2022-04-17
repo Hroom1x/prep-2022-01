@@ -5,36 +5,74 @@
 
 #include "parser.h"
 
-char *mail_parse(char *content);
-static bool check_multipart(char *value);
-
-typedef enum {
-    L_COLON,
-    L_SEMICOLON,
-    L_SLASH,
-    L_COUNT,
-    L_ERR
-} lexem_t;
-
 /*
  * H - Header
  * B - Boundary
  * P - Part
+ * V - Value
  */
+
+typedef enum {
+    L_COLON,
+    L_HBEGIN,
+    L_VBEGIN,
+    L_HEND,
+    L_BBEGIN,
+    L_BEND,
+    L_COUNT,
+    L_ERR
+} lexem_t;
 
 typedef enum {
     S_BEGIN,
     S_HBEGIN,
-    S_VALUE,
+    S_HVALUE,
     S_HEND,
     S_BBEGIN,
     S_BEND,
     S_PBEGIN,
+    S_PART,
     S_PEND,
     S_END,
     S_COUNT,
     S_ERR
 } state_t;
+
+typedef bool (*action_t)(const char *s);
+
+typedef struct {
+    state_t state;
+    action_t action;
+} rule_t;
+
+// Таблица переходов - матрица размерности
+// "число состояний" x "число лексем"
+
+static rule_t transitions[S_COUNT][L_COUNT] = {
+        //               L_COLON                           L_HBEGIN                      L_VALUE                     L_HEND                       L_BBEGIN                   L_BEND
+        /* S_BEGIN  */   {{  S_ERR, NULL},    {S_HBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
+        /* S_HBEGIN */   {{  S_HVALUE, NULL}, {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
+        /* S_HVALUE */   {{S_HVALUE, NULL},   {S_ERR, NULL},      {S_HVALUE, NULL},  {S_HEND, NULL},    {S_ERR, NULL},    {S_ERR, NULL}},
+        /* S_HEND   */   {{  S_ERR, NULL},    {S_HBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_BBEGIN, NULL}, {S_ERR, NULL}},
+        /* S_BBEGIN */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_BEND, NULL}},
+        /* S_BEND   */   {{  S_ERR, NULL},    {S_PBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_PEND, NULL},   {S_PEND, NULL}},
+        /* S_PBEGIN */   {{  S_ERR, NULL},    {S_PART, NULL},     {S_PART, NULL},    {S_PART, NULL},    {S_PEND, NULL},   {S_PEND, NULL}},
+        /* S_PART   */   {{  S_PART, NULL},    {S_PART, NULL},      {S_PART, NULL},     {S_PART,  NULL},    {S_PEND, NULL},    {S_PEND, NULL}},
+        /* S_PEND   */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR,  NULL},    {S_BBEGIN, NULL},    {S_ERR, NULL}},
+        /* S_END    */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR,  NULL},    {S_ERR, NULL},    {S_ERR, NULL}},
+};
+
+static bool check_multipart(char *value);
+static lexem_t get_lexem(char *content);
+
+char *mail_parse(char *content) {
+    state_t state = S_BEGIN;
+    while (*content) {
+        lexem_t lexem = get_lexem(content);
+        rule_t rule = transitions[state][lexem];
+    }
+    return NULL;
+}
 
 /*
 
