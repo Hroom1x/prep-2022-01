@@ -1,13 +1,11 @@
 #ifndef PROJECT_INCLUDE_PARSER_H_
 #define PROJECT_INCLUDE_PARSER_H_
 
+#include <stdbool.h>
+
 char *mail_parse(char *content);
 
 /*
-#ifndef CJSON_H
-#define CJSON_H
-
-#include <stdbool.h>
 
 typedef enum {
     CJSON_EVENT_OBEGIN,
@@ -23,9 +21,6 @@ typedef enum {
 typedef bool (*cjson_callback_t)(const char *begin, const char *end, cjson_event_t event);
 
 bool cjson_parse(const char *json, cjson_callback_t callback);
-
-#endif
-
 */
 
 #endif  // PROJECT_INCLUDE_PARSER_H_

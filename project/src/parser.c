@@ -1,77 +1,37 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "parser.h"
 
-/*
-Лексемы:
-{ } [ ] " : , STR NUM BOOL NULL
-
- Состояния конечного автомата для JSON:
-- BEGIN
-- OBEGIN
-- OKEY
-- OCOLON
-- OVALUE
-- OCOMMA
-- ABEGIN
-- AVALUE
-- ACOMMA
-- END
-- ERROR
-
-
-// Лексемы: { } [ ] : , STR NUM BOOL NULL
-typedef enum {
-    L_OBEGIN,
-    L_OEND,
-    L_ABEGIN,
-    L_AEND,
-    L_COLON,
-    L_COMMA,
-    L_STR,
-    L_NUM,
-    L_BOOL,
-    L_NULL,
-    L_COUNT,
-    L_ERR
-} lexem_t;
-
-typedef enum {
-    S_BEGIN,
-    S_OBEGIN,
-    S_OKEY,
-    S_OCOLON,
-    S_OVALUE,
-    S_OCOMMA,
-    S_ABEGIN,
-    S_AVALUE,
-    S_ACOMMA,
-    S_END,
-    S_COUNT,
-    S_ERR
-} state_t;
-*/
+char *mail_parse(char *content);
+static bool check_multipart(char *value);
 
 typedef enum {
     L_COLON,
+    L_SEMICOLON,
+    L_SLASH,
     L_COUNT,
     L_ERR
 } lexem_t;
 
 /*
- * H - header
- * P - part
+ * H - Header
+ * B - Boundary
+ * P - Part
  */
 
 typedef enum {
+    S_BEGIN,
     S_HBEGIN,
+    S_VALUE,
     S_HEND,
-    S_HVALUE,
-    S_BOUNDARY,
+    S_BBEGIN,
+    S_BEND,
     S_PBEGIN,
     S_PEND,
+    S_END,
     S_COUNT,
     S_ERR
 } state_t;

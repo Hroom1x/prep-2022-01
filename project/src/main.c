@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// TODO(ME): implement interface for parse from main()
+#include "parser.h"
 
-#define MAX_BUF_SIZE 10000
+// TODO(ME): implement interface for parse from main()
 
 static char *read_content(FILE *mail) {
     if (!mail) {
@@ -35,7 +35,11 @@ int main(int argc, const char **argv) {
     char *content = read_content(mail_file);
     fclose(mail_file);
 
-    // puts(content);
+    char *res = mail_parse(content);
 
+    if (!res) {
+        return -1;
+    }
+    puts(res);
     return 0;
 }
