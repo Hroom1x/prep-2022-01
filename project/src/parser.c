@@ -47,16 +47,31 @@ typedef struct {
 
 static char *get_boundary(char **end) {
     char *start = *end;
+    // Получение конца header value
     while ((**end != '\n') || (**end + 1 != ' ')) {
         *end = *end + 1;
     }
-    char *value = malloc(start - *end);
-    strncpy(value, start, start - *end);
-    char *boundary = strcasestr(value, "boundary");
-    if (!boundary) {
-        boundary = boundary + strlen("boundary");
+    char *value = malloc(*end - start);
+    strncpy(value, start, *end - start);
+    char *boundary_start = strcasestr(value, "boundary");
+    if (!boundary_start) {
+        boundary_start = boundary_start + strlen("boundary=");
+        char *boundary = NULL;
+        char *buf = boundary_start;
+        while ((*buf != ' ') && (*buf != '\n')) {
+            buf++;
+        }
+        if ((*boundary_start == '\"') || (*boundary_start == '\'')) {
+            boundary = malloc(buf - boundary_start - 2);
+            strncpy(boundary, boundary_start + strlen("\'"), strlen(boundary));
+        } else {
+            boundary = malloc(buf - boundary_start);
+            strncpy(boundary, boundary_start, strlen(boundary));
+        }
+        return boundary;
     }
-    return boundary;
+    free(value);
+    return NULL;
 };
 
 static lexem_t get_value(const char *s, const char **end) {
@@ -108,8 +123,8 @@ static lexem_t get_lexem(state_t *state, const char *boundary, char *content, ch
             *end = *end + 1;
         }
         *end = *end + 1;
-        char *header = malloc(content - *end);
-        strncpy(header, content, content - *end);
+        char *header = malloc(*end - content);
+        strncpy(header, content, *end - content);
         if (strcmp(header, "Content-Type") != 0) {
             boundary = get_boundary(*end);
         }
