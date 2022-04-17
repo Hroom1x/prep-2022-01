@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
 
@@ -17,8 +18,7 @@ typedef enum {
     L_HBEGIN,
     L_VBEGIN,
     L_HEND,
-    L_BBEGIN,
-    L_BEND,
+    L_BOUNDARY,
     L_COUNT,
     L_ERR
 } lexem_t;
@@ -28,48 +28,94 @@ typedef enum {
     S_HBEGIN,
     S_HVALUE,
     S_HEND,
-    S_BBEGIN,
-    S_BEND,
-    S_PBEGIN,
+    S_VALUE,
+    S_BOUNDARY,
     S_PART,
-    S_PEND,
     S_END,
     S_COUNT,
     S_ERR
 } state_t;
 
-typedef bool (*action_t)(const char *s);
+typedef bool (*action_t)(char *content, char **end);
 
 typedef struct {
     state_t state;
     action_t action;
 } rule_t;
 
+static lexem_t get_string(const char *s, const char **end) {
+    ++s;
+    while (*s != '\0' && *s != '\n') {
+        if (*s == '\\') {
+            char next = *(s + 1);
+            if (next == '"' || next == '\\' || next == '/' || next == 'b' || next == 'f' || next == 'n' || next == 'r' || next == 't') {
+                ++s;
+            } else if (next == 'u' && is_hex(*(s + 2)) && is_hex(*(s + 3)) && is_hex(*(s + 4)) && is_hex(*(s + 5))) {
+                s += 4;
+            } else {
+                return L_ERR;
+            }
+        }
+        ++s;
+    }
+    if (*s == '\0') {
+        return L_ERR;
+    }
+    *end = s + 1;
+    return L_STR;
+}
+
+static lexem_t get_lexem(state_t *state, char *content, char **end) {
+    *end = content + 1;
+    if (*content == ':') {
+        *state = S_HVALUE;
+        return L_COLON;
+    }
+    return L_ERR;
+};
+
+static bool check_multipart(char *header) {
+    return false;
+};
+
 // Таблица переходов - матрица размерности
 // "число состояний" x "число лексем"
 
 static rule_t transitions[S_COUNT][L_COUNT] = {
-        //               L_COLON                           L_HBEGIN                      L_VALUE                     L_HEND                       L_BBEGIN                   L_BEND
-        /* S_BEGIN  */   {{  S_ERR, NULL},    {S_HBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
-        /* S_HBEGIN */   {{  S_HVALUE, NULL}, {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
-        /* S_HVALUE */   {{S_HVALUE, NULL},   {S_ERR, NULL},      {S_HVALUE, NULL},  {S_HEND, NULL},    {S_ERR, NULL},    {S_ERR, NULL}},
-        /* S_HEND   */   {{  S_ERR, NULL},    {S_HBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_BBEGIN, NULL}, {S_ERR, NULL}},
-        /* S_BBEGIN */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR, NULL},     {S_ERR, NULL},    {S_BEND, NULL}},
-        /* S_BEND   */   {{  S_ERR, NULL},    {S_PBEGIN, NULL},   {S_ERR, NULL},     {S_ERR, NULL},     {S_PEND, NULL},   {S_PEND, NULL}},
-        /* S_PBEGIN */   {{  S_ERR, NULL},    {S_PART, NULL},     {S_PART, NULL},    {S_PART, NULL},    {S_PEND, NULL},   {S_PEND, NULL}},
-        /* S_PART   */   {{  S_PART, NULL},    {S_PART, NULL},      {S_PART, NULL},     {S_PART,  NULL},    {S_PEND, NULL},    {S_PEND, NULL}},
-        /* S_PEND   */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR,  NULL},    {S_BBEGIN, NULL},    {S_ERR, NULL}},
-        /* S_END    */   {{  S_ERR, NULL},    {S_ERR, NULL},      {S_ERR, NULL},     {S_ERR,  NULL},    {S_ERR, NULL},    {S_ERR, NULL}},
+        //                  L_COLON                         L_HBEGIN                                     L_VALUE                     L_HEND                     L_BOUNDARY
+        /* S_BEGIN    */   {{S_ERR, NULL},    {S_HBEGIN, check_multipart},  {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
+        /* S_HBEGIN   */   {{S_HVALUE, NULL}, {S_ERR, NULL},                       {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
+        /* S_HVALUE   */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},                    {S_HVALUE, NULL},  {S_HEND, NULL},   {S_ERR, NULL}},
+        /* S_HEND     */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},                    {S_VALUE, NULL},   {S_HEND, NULL},   {S_ERR, NULL}},
+        /* S_VALUE    */   {{S_VALUE, NULL},  {S_HBEGIN, NULL},                    {S_VALUE, NULL},   {S_VALUE, NULL},  {S_BOUNDARY, NULL}},
+        /* S_BOUNDARY */   {{S_ERR, NULL},    {S_PART, NULL},                      {S_PART, NULL},    {S_ERR, NULL},    {S_PART, NULL}},
+        /* S_PART     */   {{S_PART, NULL},   {S_PART, NULL},                      {S_PART, NULL},    {S_PART,  NULL},  {S_PART, NULL}},
+        /* S_END      */   {{S_ERR, NULL},    {S_ERR, NULL},                       {S_ERR, NULL},     {S_ERR,  NULL},   {S_ERR, NULL}},
 };
-
-static bool check_multipart(char *value);
-static lexem_t get_lexem(char *content);
 
 char *mail_parse(char *content) {
     state_t state = S_BEGIN;
     while (*content) {
-        lexem_t lexem = get_lexem(content);
+        char *end;
+        lexem_t lexem = get_lexem(&state, content, &end);
+        if (lexem == L_ERR) {
+            return NULL;
+        }
         rule_t rule = transitions[state][lexem];
+        if (rule.state == S_ERR) {
+            return NULL;
+        }
+        if (!rule.action) {
+            if (!rule.action(content, &end)) {
+                return NULL;
+            }
+        }
+        if (rule.state == S_END) {
+            puts("\n\n==== END ====\n\n");
+            return content;
+        }
+        state = rule.state;
+        content = end;
     }
     return NULL;
 }
