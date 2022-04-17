@@ -1,8 +1,10 @@
+#define _GNU_SOURCE
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "parser.h"
 
@@ -43,7 +45,22 @@ typedef struct {
     action_t action;
 } rule_t;
 
-static lexem_t get_string(const char *s, const char **end) {
+static char *get_boundary(char **end) {
+    char *start = *end;
+    while ((**end != '\n') || (**end + 1 != ' ')) {
+        *end = *end + 1;
+    }
+    char *value = malloc(start - *end);
+    strncpy(value, start, start - *end);
+    char *boundary = strcasestr(value, "boundary");
+    if (!boundary) {
+        boundary = boundary + strlen("boundary");
+    }
+    return boundary;
+};
+
+static lexem_t get_value(const char *s, const char **end) {
+    /*
     ++s;
     while (*s != '\0' && *s != '\n') {
         if (*s == '\\') {
@@ -63,19 +80,41 @@ static lexem_t get_string(const char *s, const char **end) {
     }
     *end = s + 1;
     return L_STR;
+    */
 }
 
-static lexem_t get_lexem(state_t *state, char *content, char **end) {
-    *end = content + 1;
+static lexem_t get_lexem(state_t *state, const char *boundary, char *content, char **end) {
+    //+ L_COLON,
+    // L_BOUNDARY,
+    // L_HBEGIN,
+    // L_VBEGIN,
+    // L_HEND,
+    // L_COUNT,
+    // L_ERR
+
+    // COLON UNNECESSARY
     if (*content == ':') {
         *state = S_HVALUE;
+        *end = content + 1;
         return L_COLON;
+    } else if ((*content == '-') && (*content + 1 == '-')) {
+        *end = content + strlen(boundary);
+        *state = S_BOUNDARY;
+        return L_BOUNDARY;
+    } else if (*content && (*content != ' ') && (*content != '\n')) {
+        *state = S_HBEGIN;
+        *end = content;
+        while (**end != ':') {
+            *end = *end + 1;
+        }
+        *end = *end + 1;
+        char *header = malloc(content - *end);
+        strncpy(header, content, content - *end);
+        if (strcmp(header, "Content-Type") != 0) {
+            boundary = get_boundary(*end);
+        }
     }
     return L_ERR;
-};
-
-static bool check_multipart(char *header) {
-    return false;
 };
 
 // Таблица переходов - матрица размерности
@@ -83,21 +122,25 @@ static bool check_multipart(char *header) {
 
 static rule_t transitions[S_COUNT][L_COUNT] = {
         //                  L_COLON                         L_HBEGIN                                     L_VALUE                     L_HEND                     L_BOUNDARY
-        /* S_BEGIN    */   {{S_ERR, NULL},    {S_HBEGIN, check_multipart},  {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
-        /* S_HBEGIN   */   {{S_HVALUE, NULL}, {S_ERR, NULL},                       {S_ERR, NULL},     {S_ERR, NULL},    {S_ERR, NULL}},
-        /* S_HVALUE   */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},                    {S_HVALUE, NULL},  {S_HEND, NULL},   {S_ERR, NULL}},
-        /* S_HEND     */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},                    {S_VALUE, NULL},   {S_HEND, NULL},   {S_ERR, NULL}},
-        /* S_VALUE    */   {{S_VALUE, NULL},  {S_HBEGIN, NULL},                    {S_VALUE, NULL},   {S_VALUE, NULL},  {S_BOUNDARY, NULL}},
-        /* S_BOUNDARY */   {{S_ERR, NULL},    {S_PART, NULL},                      {S_PART, NULL},    {S_ERR, NULL},    {S_PART, NULL}},
-        /* S_PART     */   {{S_PART, NULL},   {S_PART, NULL},                      {S_PART, NULL},    {S_PART,  NULL},  {S_PART, NULL}},
-        /* S_END      */   {{S_ERR, NULL},    {S_ERR, NULL},                       {S_ERR, NULL},     {S_ERR,  NULL},   {S_ERR, NULL}},
+        /* S_BEGIN    */   {{S_ERR, NULL},    {S_HBEGIN, get_boundary}, {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
+        /* S_HBEGIN   */   {{S_HVALUE, NULL}, {S_ERR, NULL},            {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
+        /* S_HVALUE   */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},         {S_HVALUE, NULL}, {S_HEND,  NULL}, {S_ERR,      NULL}},
+        /* S_HEND     */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},         {S_VALUE,  NULL}, {S_HEND,  NULL}, {S_ERR,      NULL}},
+        /* S_VALUE    */   {{S_VALUE, NULL},  {S_HBEGIN, NULL},         {S_VALUE,  NULL}, {S_VALUE, NULL}, {S_BOUNDARY, NULL}},
+        /* S_BOUNDARY */   {{S_ERR, NULL},    {S_PART, NULL},           {S_PART,   NULL}, {S_ERR,   NULL}, {S_PART,     NULL}},
+        /* S_PART     */   {{S_PART, NULL},   {S_PART, NULL},           {S_PART,   NULL}, {S_PART,  NULL}, {S_PART,     NULL}},
+        /* S_END      */   {{S_ERR, NULL},    {S_ERR, NULL},            {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
 };
 
 char *mail_parse(char *content) {
+    if (!content) {
+        return NULL;
+    }
     state_t state = S_BEGIN;
+    char *boundary;
     while (*content) {
         char *end;
-        lexem_t lexem = get_lexem(&state, content, &end);
+        lexem_t lexem = get_lexem(&state, boundary, content, &end);
         if (lexem == L_ERR) {
             return NULL;
         }
