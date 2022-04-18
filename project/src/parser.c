@@ -48,26 +48,31 @@ typedef struct {
 static char *get_boundary(char **end) {
     char *start = *end;
     // Получение конца header value
-    while ((**end != '\n') || (**end + 1 != ' ')) {
+    size_t length = 0;
+    while ((**end != '\n') && (**end + 1 != ' ')) {
+        length++;
         *end = *end + 1;
     }
-    char *value = malloc(*end - start);
-    strncpy(value, start, *end - start);
+    char *value = malloc(length);
+    value = strncpy(value, start, length);
     char *boundary_start = strcasestr(value, "boundary");
-    if (!boundary_start) {
-        boundary_start = boundary_start + strlen("boundary=");
+    if (boundary_start) {
+        boundary_start = 9 + boundary_start;
         char *boundary = NULL;
         char *buf = boundary_start;
+        length = 0;
         while ((*buf != ' ') && (*buf != '\n')) {
+            length++;
             buf++;
         }
         if ((*boundary_start == '\"') || (*boundary_start == '\'')) {
-            boundary = malloc(buf - boundary_start - 2);
-            strncpy(boundary, boundary_start + strlen("\'"), strlen(boundary));
+            boundary = malloc(length - 2);
+            boundary = strncpy(boundary, boundary_start, length);
         } else {
-            boundary = malloc(buf - boundary_start);
-            strncpy(boundary, boundary_start, strlen(boundary));
+            boundary = malloc(length);
+            boundary = strncpy(boundary, boundary_start, length);
         }
+        free(value);
         return boundary;
     }
     free(value);
