@@ -16,9 +16,8 @@
  */
 
 typedef enum {
-    L_COLON,
     L_HBEGIN,
-    L_VBEGIN,
+    L_HVALUE,
     L_HEND,
     L_BOUNDARY,
     L_COUNT,
@@ -26,30 +25,91 @@ typedef enum {
 } lexem_t;
 
 typedef enum {
-    S_BEGIN,
     S_HBEGIN,
     S_HVALUE,
     S_HEND,
-    S_VALUE,
-    S_BOUNDARY,
     S_PART,
+    S_MPART,
     S_END,
     S_COUNT,
     S_ERR
 } state_t;
 
-typedef bool (*action_t)(char *content, char **end);
+typedef bool (*action_t)(const char *content, const char **end);
+// typedef bool (*action_t)(const char *s, const char **end, cjson_callback_t callback)
 
 typedef struct {
     state_t state;
     action_t action;
 } rule_t;
 
+static char *get_boundary(char **end);
+static void print_value(const char *content, const char **end);
+static lexem_t get_lexem(const state_t *state, const char *boundary, char *content, char **end);
+
+// Таблица переходов - матрица размерности
+// "число состояний" x "число лексем"
+
+static rule_t transitions[S_COUNT][L_COUNT] = {
+        //                L_HBEGIN                                    L_HVALUE                                 L_HEND                                  L_BOUNDARY
+        /* S_HBEGIN  */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
+        /* S_HVALUE  */  {{S_ERR, NULL},                 {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
+        /* S_HEND    */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_HEND, get_lexem}},
+        /* S_PART    */  {{S_PART, get_lexem},    {S_PART, get_lexem},     {S_PART, get_lexem},    {S_ERR, NULL}},
+        /* S_MPART   */  {{S_MPART, get_lexem},   {S_MPART, get_lexem},    {S_MPART, get_lexem},   {S_MPART, get_lexem}},
+        /* S_END     */  {{S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL}}
+};
+
+static void print_value(const char *content, const char **end) {
+    while (true) {
+        if ((**end == '\n') && (*(*end + 1) != ' ')) {
+            break;
+        }
+        printf("%c", **end);
+        *end = *end + 1;
+    }
+    *end = *end + 1;
+}
+
+static lexem_t get_lexem(const state_t *state, const char *boundary, char *content, char **end) {
+    if (*state != S_PART) {
+        if ((*content == '-') && (*(content + 1) == '-')) {
+            *end = content + strlen(boundary) + 3;
+            // *state = S_PART;  // May be MPART
+            return L_BOUNDARY;
+        } else if (*content && (*content != ' ') && (*content != '\n')) {
+            // *state = S_HBEGIN;
+            *end = content;
+            while (**end != ':') {
+                *end = *end + 1;
+            }
+            *end = *end + 1;
+            // *state = S_HVALUE;
+            char *header = malloc(*end - content);
+            header = strncpy(header, content, *end - content - 1);
+            if (strcasestr(header, "Content-Type") != NULL) {
+                boundary = get_boundary(*end);
+                // *state = S_HEND;
+            }
+            // TODO(ME): скипать значение заголовка, если оно нам не нравится
+            if (strcasestr(header, "From") != NULL) {
+                print_value(content, (const char **) end);
+                // *state = S_HEND;
+            }
+            free(header);
+            return L_HEND;
+        }
+    } else {  // Part_counting
+        puts("123");
+    }
+    return L_ERR;
+};
+
 static char *get_boundary(char **end) {
     char *start = *end;
     // Получение конца header value
     size_t length = 0;
-    while ((**end != '\n') && (**end + 1 != ' ')) {
+    while ((**end != '\n') && (*(*end + 1) != ' ')) {
         length++;
         *end = *end + 1;
     }
@@ -79,84 +139,11 @@ static char *get_boundary(char **end) {
     return NULL;
 };
 
-static lexem_t get_value(const char *s, const char **end) {
-    /*
-    ++s;
-    while (*s != '\0' && *s != '\n') {
-        if (*s == '\\') {
-            char next = *(s + 1);
-            if (next == '"' || next == '\\' || next == '/' || next == 'b' || next == 'f' || next == 'n' || next == 'r' || next == 't') {
-                ++s;
-            } else if (next == 'u' && is_hex(*(s + 2)) && is_hex(*(s + 3)) && is_hex(*(s + 4)) && is_hex(*(s + 5))) {
-                s += 4;
-            } else {
-                return L_ERR;
-            }
-        }
-        ++s;
-    }
-    if (*s == '\0') {
-        return L_ERR;
-    }
-    *end = s + 1;
-    return L_STR;
-    */
-}
-
-static lexem_t get_lexem(state_t *state, const char *boundary, char *content, char **end) {
-    //+ L_COLON,
-    // L_BOUNDARY,
-    // L_HBEGIN,
-    // L_VBEGIN,
-    // L_HEND,
-    // L_COUNT,
-    // L_ERR
-
-    // COLON UNNECESSARY
-    if (*content == ':') {
-        *state = S_HVALUE;
-        *end = content + 1;
-        return L_COLON;
-    } else if ((*content == '-') && (*content + 1 == '-')) {
-        *end = content + strlen(boundary);
-        *state = S_BOUNDARY;
-        return L_BOUNDARY;
-    } else if (*content && (*content != ' ') && (*content != '\n')) {
-        *state = S_HBEGIN;
-        *end = content;
-        while (**end != ':') {
-            *end = *end + 1;
-        }
-        *end = *end + 1;
-        char *header = malloc(*end - content);
-        strncpy(header, content, *end - content);
-        if (strcmp(header, "Content-Type") != 0) {
-            boundary = get_boundary(*end);
-        }
-    }
-    return L_ERR;
-};
-
-// Таблица переходов - матрица размерности
-// "число состояний" x "число лексем"
-
-static rule_t transitions[S_COUNT][L_COUNT] = {
-        //                  L_COLON                         L_HBEGIN                                     L_VALUE                     L_HEND                     L_BOUNDARY
-        /* S_BEGIN    */   {{S_ERR, NULL},    {S_HBEGIN, get_boundary}, {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
-        /* S_HBEGIN   */   {{S_HVALUE, NULL}, {S_ERR, NULL},            {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
-        /* S_HVALUE   */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},         {S_HVALUE, NULL}, {S_HEND,  NULL}, {S_ERR,      NULL}},
-        /* S_HEND     */   {{S_HVALUE, NULL}, {S_HBEGIN, NULL},         {S_VALUE,  NULL}, {S_HEND,  NULL}, {S_ERR,      NULL}},
-        /* S_VALUE    */   {{S_VALUE, NULL},  {S_HBEGIN, NULL},         {S_VALUE,  NULL}, {S_VALUE, NULL}, {S_BOUNDARY, NULL}},
-        /* S_BOUNDARY */   {{S_ERR, NULL},    {S_PART, NULL},           {S_PART,   NULL}, {S_ERR,   NULL}, {S_PART,     NULL}},
-        /* S_PART     */   {{S_PART, NULL},   {S_PART, NULL},           {S_PART,   NULL}, {S_PART,  NULL}, {S_PART,     NULL}},
-        /* S_END      */   {{S_ERR, NULL},    {S_ERR, NULL},            {S_ERR,    NULL}, {S_ERR,   NULL}, {S_ERR,      NULL}},
-};
-
 char *mail_parse(char *content) {
     if (!content) {
         return NULL;
     }
-    state_t state = S_BEGIN;
+    state_t state = S_HBEGIN;
     char *boundary;
     while (*content) {
         char *end;
@@ -200,15 +187,6 @@ static lexem_t get_string(const char *s, const char **end);
 static lexem_t get_value(const char *s, const char **end);
 
 static bool extract_json(const char *s, const char **end, cjson_callback_t callback);
-
-static bool on_obegin(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_OBEGIN); }
-static bool on_oend(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_OEND); }
-static bool on_abegin(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_ABEGIN); }
-static bool on_aend(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_AEND); }
-static bool on_str(const char *s, const char **end, cjson_callback_t callback) { return callback(s + 1, *end - 1, CJSON_EVENT_STR); }
-static bool on_bool(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_BOOL); }
-static bool on_null(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_NULL); }
-static bool on_num(const char *s, const char **end, cjson_callback_t callback) { return callback(s, *end, CJSON_EVENT_NUM); }
 
 static rule_t transitions[S_COUNT][L_COUNT] = {
 //             L_OBEGIN                         L_OEND               L_ABEGIN                        L_AEND               L_COLON              L_COMMA               L_STR                            L_NUM                             L_BOOL                            L_NULL

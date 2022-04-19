@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// #include "parser.h"
+#include "parser.h"
 
 
 
@@ -33,18 +33,15 @@ int main(int argc, const char **argv) {
         return -1;
     }
 
+    char *mail = "From: \"Administrator\" <administrator@example.com>\nTo: \"Bob Sample\" <bob@example.com>\nSubject: Welcome\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=bd1\n\n--bd1\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nSasha\n\n--bd1\nContent-Type: multipart/related; boundary=\"bd2\"\n\n--bd2\nContent-Type: text/html; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nHi\n\n--bd2--\n--bd1--";
+    mail_parse(mail);
+
     // const char *path_to_eml = argv[1];
     // puts(path_to_eml);
 
     // FILE *mail_file = fopen(path_to_eml, "r");
     // char *content = read_content(mail_file);
     // fclose(mail_file);
-
-    char *test = "test boundary=\"bnd123\" azaz \n K";
-    char *end = test;
-    char *boundary = get_boundary(&end);
-
-    puts(boundary);
 
     /*
     char *res = mail_parse(content);
