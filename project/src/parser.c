@@ -35,6 +35,14 @@ typedef enum {
     S_ERR
 } state_t;
 
+typedef struct {
+    char *from;
+    char *to;
+    char *date;
+    char *boundary;
+    int part;
+} info_t;
+
 typedef bool (*action_t)(const char *content, const char **end);
 // typedef bool (*action_t)(const char *s, const char **end, cjson_callback_t callback)
 
@@ -43,9 +51,9 @@ typedef struct {
     action_t action;
 } rule_t;
 
-static char *get_boundary(char **end);
-static void print_value(const char *content, const char **end);
-static lexem_t get_lexem(const state_t *state, const char *boundary, char *content, char **end);
+static char *get_boundary(char *value);
+static char *get_value(char **end);
+static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info);
 
 // Таблица переходов - матрица размерности
 // "число состояний" x "число лексем"
@@ -60,41 +68,53 @@ static rule_t transitions[S_COUNT][L_COUNT] = {
         /* S_END     */  {{S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL}}
 };
 
-static void print_value(const char *content, const char **end) {
+static char *get_value(char **end) {
+    size_t length = 0;
+    char *start = *end;
     while (true) {
         if ((**end == '\n') && (*(*end + 1) != ' ')) {
             break;
         }
         printf("%c", **end);
+        length++;
         *end = *end + 1;
     }
+    char *value = malloc(length);
+    strncpy(value, start, length);
     *end = *end + 1;
+    if (!value) {
+        free(value);
+        free(start);
+        return NULL;
+    }
+    return value;
 }
 
-static lexem_t get_lexem(const state_t *state, const char *boundary, char *content, char **end) {
-    if (*state != S_PART) {
+static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info) {
+    if ((*state != S_PART) && (*state != S_MPART)) {
         if ((*content == '-') && (*(content + 1) == '-')) {
-            *end = content + strlen(boundary) + 3;
-            // *state = S_PART;  // May be MPART
+            *end = content + strlen(msg_info->boundary) + 3;
             return L_BOUNDARY;
         } else if (*content && (*content != ' ') && (*content != '\n')) {
-            // *state = S_HBEGIN;
             *end = content;
             while (**end != ':') {
                 *end = *end + 1;
             }
             *end = *end + 1;
-            // *state = S_HVALUE;
-            char *header = malloc(*end - content);
+            char *header = malloc(*end - content - 1);
             header = strncpy(header, content, *end - content - 1);
             if (strcasestr(header, "Content-Type") != NULL) {
-                boundary = get_boundary(*end);
-                // *state = S_HEND;
-            }
-            // TODO(ME): скипать значение заголовка, если оно нам не нравится
-            if (strcasestr(header, "From") != NULL) {
-                print_value(content, (const char **) end);
-                // *state = S_HEND;
+                char *value = get_value((char **) end);
+                msg_info->boundary = get_boundary(value);
+                free(value);
+            } else if (strcasestr(header, "From") != NULL) {
+                msg_info->from = get_value((char **) end);
+            } else if (strcasestr(header, "To") != NULL) {
+                msg_info->to = get_value((char **) end);
+            } else if (strcasestr(header, "Date") != NULL) {
+                msg_info->date = get_value((char **) end);
+            } else {
+                get_value((char **) end);
             }
             free(header);
             return L_HEND;
@@ -105,7 +125,8 @@ static lexem_t get_lexem(const state_t *state, const char *boundary, char *conte
     return L_ERR;
 };
 
-static char *get_boundary(char **end) {
+static char *get_boundary(char *value) {
+    /*
     char *start = *end;
     // Получение конца header value
     size_t length = 0;
@@ -137,17 +158,24 @@ static char *get_boundary(char **end) {
     }
     free(value);
     return NULL;
+    */
 };
 
 char *mail_parse(char *content) {
     if (!content) {
         return NULL;
     }
+    info_t msg_info = {
+            "",
+            "",
+            "",
+            "",
+            0
+    };
     state_t state = S_HBEGIN;
-    char *boundary;
     while (*content) {
         char *end;
-        lexem_t lexem = get_lexem(&state, boundary, content, &end);
+        lexem_t lexem = get_lexem(&state, content, &end, &msg_info);
         if (lexem == L_ERR) {
             return NULL;
         }

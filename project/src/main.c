@@ -33,7 +33,8 @@ int main(int argc, const char **argv) {
         return -1;
     }
 
-    char *mail = "From: \"Administrator\" <administrator@example.com>\nTo: \"Bob Sample\" <bob@example.com>\nSubject: Welcome\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=bd1\n\n--bd1\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nSasha\n\n--bd1\nContent-Type: multipart/related; boundary=\"bd2\"\n\n--bd2\nContent-Type: text/html; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nHi\n\n--bd2--\n--bd1--";
+    // "From: \"Administrator\" <administrator@example.com>\nTo: \"Bob Sample\" <bob@example.com>\nSubject: Welcome\nMIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=bd1\n\n--bd1\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nSasha\n\n--bd1\nContent-Type: multipart/related; boundary=\"bd2\"\n\n--bd2\nContent-Type: text/html; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nHi\n\n--bd2--\n--bd1--";
+    char *mail = "MIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=bd1\n\n--bd1\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nSasha\n\n--bd1\nContent-Type: multipart/related; boundary=\"bd2\"\n\n--bd2\nContent-Type: text/html; charset=\"UTF-8\"\nContent-Transfer-Encoding: 8bit\n\nHi\n\n--bd2--\n--bd1--";
     mail_parse(mail);
 
     // const char *path_to_eml = argv[1];
