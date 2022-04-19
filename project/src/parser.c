@@ -86,7 +86,7 @@ static char *get_value(char **end) {
         free(value);
         free(start);
         return NULL;
-    }
+    } else
     return value;
 }
 
@@ -126,39 +126,25 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
 };
 
 static char *get_boundary(char *value) {
-    /*
-    char *start = *end;
-    // Получение конца header value
+    char *boundary_start = strcasestr(value, "boundary") + strlen("boundary=");
+    if (!boundary_start) {
+        return NULL;
+    }
+    char *boundary_end = boundary_start;
     size_t length = 0;
-    while ((**end != '\n') && (*(*end + 1) != ' ')) {
+    while ((*boundary_end != ' ') && (*boundary_end != '\n') && (*boundary_end != ';') && (*boundary_end != '\0')) {
+        boundary_end++;
         length++;
-        *end = *end + 1;
     }
-    char *value = malloc(length);
-    value = strncpy(value, start, length);
-    char *boundary_start = strcasestr(value, "boundary");
-    if (boundary_start) {
-        boundary_start = 9 + boundary_start;
-        char *boundary = NULL;
-        char *buf = boundary_start;
-        length = 0;
-        while ((*buf != ' ') && (*buf != '\n')) {
-            length++;
-            buf++;
-        }
-        if ((*boundary_start == '\"') || (*boundary_start == '\'')) {
-            boundary = malloc(length - 2);
-            boundary = strncpy(boundary, boundary_start, length);
-        } else {
-            boundary = malloc(length);
-            boundary = strncpy(boundary, boundary_start, length);
-        }
-        free(value);
-        return boundary;
+    char *boundary;
+    if ((*boundary_start == '\'') || (*boundary_start == '\"')) {
+        boundary = malloc(length - 2);
+        boundary = strncpy(boundary, boundary_start + 1, length - 2);
+    } else {
+        boundary = malloc(length);
+        boundary = strncpy(boundary, boundary_start, length);
     }
-    free(value);
-    return NULL;
-    */
+    return boundary;
 };
 
 char *mail_parse(char *content) {
