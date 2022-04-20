@@ -181,10 +181,10 @@ static char *get_boundary(char *value) {
     }
     char *boundary;
     if ((*boundary_start == '\'') || (*boundary_start == '\"')) {
-        boundary = malloc(length - 2);
+        boundary = calloc(length - 2, sizeof(char));
         boundary = strncpy(boundary, boundary_start + 1, length - 2);
     } else {
-        boundary = malloc(length);
+        boundary = calloc(length, sizeof(char));
         boundary = strncpy(boundary, boundary_start, length);
     }
     return boundary;
@@ -217,16 +217,15 @@ char *mail_parse(char *content) {
                 return NULL;
             }
         }
-        if (rule.state == S_END) {
-            // char format_string[FORMAT_STRING_MAX_SIZE];
-            // snprintf(format_string, FORMAT_STRING_MAX_SIZE,
-            //          "%%%",
-            //          FROM_BUF, TO_BUF, DATE_BUF, PART_BUF);
-            printf("%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
-            return NULL;
-        }
         state = rule.state;
         content = end;
+        if (strlen(content) == 0) {
+            char output[FORMAT_STRING_MAX_SIZE];
+            snprintf(output, FORMAT_STRING_MAX_SIZE,
+                     "%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
+            printf("%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
+            return "OK";
+        }
     }
     return NULL;
 }
