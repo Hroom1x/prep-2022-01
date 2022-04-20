@@ -8,11 +8,7 @@
 
 #include "parser.h"
 
-#define FORMAT_STRING_MAX_SIZE 610
-// #define FROM_BUF 200
-// #define TO_BUF 200
-// #define DATE_BUF 200
-// #define PART_BUF 10
+#define FORMAT_STRING_MAX_SIZE 1000
 
 /*
  * H - Header
@@ -141,7 +137,10 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
         } else if (*content == '\n') {
             *end = *end + 1;
             return L_HEND;
-        } else if (*content && (*content != ' ')) {
+        } else if (*content == ' ') {
+            skip_value((char **) end);
+            return L_HEND;
+        } else if (*content) {
             *end = content;
             while (**end != ':') {
                 *end = *end + 1;
@@ -149,15 +148,15 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             *end = *end + 1;
             char *header = malloc(*end - content - 1);
             header = strncpy(header, content, *end - content - 1);
-            if (strcasestr(header, "Content-Type") != NULL) {
+            if (strcmp(header, "Content-Type") == 0) {
                 char *value = get_value((char **) end);
                 msg_info->boundary = get_boundary(value);
                 free(value);
-            } else if (strcasestr(header, "From") != NULL) {
+            } else if (strcmp(header, "From") == 0) {
                 msg_info->from = get_value((char **) end);
-            } else if (strcasestr(header, "To") != NULL) {
+            } else if (strcmp(header, "To") == 0) {
                 msg_info->to = get_value((char **) end);
-            } else if (strcasestr(header, "Date") != NULL) {
+            } else if (strcmp(header, "Date") == 0) {
                 msg_info->date = get_value((char **) end);
             } else {
                 skip_value((char **) end);
