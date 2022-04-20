@@ -8,6 +8,12 @@
 
 #include "parser.h"
 
+#define FORMAT_STRING_MAX_SIZE 610
+#define FROM_BUF 200
+#define TO_BUF 200
+#define DATE_BUF 200
+#define PART_BUF 10
+
 /*
  * H - Header
  * B - Boundary
@@ -53,6 +59,7 @@ typedef struct {
 
 static char *get_boundary(char *value);
 static char *get_value(char **end);
+static char *get_line(char **end);
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info);
 
 // Таблица переходов - матрица размерности
@@ -62,7 +69,7 @@ static rule_t transitions[S_COUNT][L_COUNT] = {
         //                L_HBEGIN                                    L_HVALUE                                 L_HEND                                  L_BOUNDARY
         /* S_HBEGIN  */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
         /* S_HVALUE  */  {{S_ERR, NULL},                 {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
-        /* S_HEND    */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_HEND, get_lexem}},
+        /* S_HEND    */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_MPART, get_lexem}},
         /* S_PART    */  {{S_PART, get_lexem},    {S_PART, get_lexem},     {S_PART, get_lexem},    {S_ERR, NULL}},
         /* S_MPART   */  {{S_MPART, get_lexem},   {S_MPART, get_lexem},    {S_MPART, get_lexem},   {S_MPART, get_lexem}},
         /* S_END     */  {{S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL}}
@@ -75,11 +82,10 @@ static char *get_value(char **end) {
         if ((**end == '\n') && (*(*end + 1) != ' ')) {
             break;
         }
-        printf("%c", **end);
         length++;
         *end = *end + 1;
     }
-    char *value = malloc(length);
+    char *value = calloc(length + 1, sizeof(char));
     strncpy(value, start, length);
     *end = *end + 1;
     if (!value) {
@@ -90,11 +96,36 @@ static char *get_value(char **end) {
     return value;
 }
 
+static char *get_line(char **end) {
+    size_t length = 0;
+    char *start = *end;
+    while (**end != '\n') {
+        length++;
+        *end = *end + 1;
+    }
+    if (length == 0) {
+        *end = *end + 1;
+        return NULL;
+    }
+    char *value = calloc(length + 1, sizeof(char));
+    value = strncpy(value, start, length);
+    *end = *end + 1;
+    if (!value) {
+        free(value);
+        return NULL;
+    }
+    return value;
+}
+
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info) {
     if ((*state != S_PART) && (*state != S_MPART)) {
         if ((*content == '-') && (*(content + 1) == '-')) {
             *end = content + strlen(msg_info->boundary) + 3;
+            msg_info->part++;
             return L_BOUNDARY;
+        } else if (*content == '\n') {
+            *end = *end + 1;
+            return L_HEND;
         } else if (*content && (*content != ' ') && (*content != '\n')) {
             *end = content;
             while (**end != ':') {
@@ -120,7 +151,19 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             return L_HEND;
         }
     } else {  // Part_counting
-        puts("123");
+        char *line = get_line((char **) end);
+        if (!line) {
+            return L_HEND;
+        }
+        if ((*line == '-') && (*(line + 1) == '-')) {
+            if (strcmp(msg_info->boundary, line + 2) == 0) {
+                msg_info->part++;
+                free(line);
+                return L_BOUNDARY;
+            }
+        }
+        free(line);
+        return L_HEND;
     }
     return L_ERR;
 };
@@ -175,165 +218,15 @@ char *mail_parse(char *content) {
             }
         }
         if (rule.state == S_END) {
-            puts("\n\n==== END ====\n\n");
-            return content;
+            // char format_string[FORMAT_STRING_MAX_SIZE];
+            // snprintf(format_string, FORMAT_STRING_MAX_SIZE,
+            //          "%%%",
+            //          FROM_BUF, TO_BUF, DATE_BUF, PART_BUF);
+            printf("%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
+            return NULL;
         }
         state = rule.state;
         content = end;
     }
     return NULL;
 }
-
-/*
-
-typedef bool (*action_t)(const char *s, const char **end, cjson_callback_t callback);
-
-typedef struct {
-    state_t state;
-    action_t action;
-} rule_t;
-
-// Таблица переходов - матрица размерности
-// "число состояний" x "число лексем"
-
-static lexem_t get_lexem(const char *s, const char **end);
-static lexem_t get_string(const char *s, const char **end);
-static lexem_t get_value(const char *s, const char **end);
-
-static bool extract_json(const char *s, const char **end, cjson_callback_t callback);
-
-static rule_t transitions[S_COUNT][L_COUNT] = {
-//             L_OBEGIN                         L_OEND               L_ABEGIN                        L_AEND               L_COLON              L_COMMA               L_STR                            L_NUM                             L_BOOL                            L_NULL
- S_BEGIN   {{ S_OBEGIN, on_obegin},         { S_ERR, NULL },     { S_ABEGIN, on_abegin },        { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_END, on_str },               { S_END, on_num },                { S_END, on_bool },               { S_END, on_null }},
- S_OBEGIN  {{ S_ERR, NULL },                { S_END, on_oend },  { S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_OKEY, on_str },              { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }},
- S_OKEY    {{ S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },                { S_ERR, NULL },     { S_OCOLON, NULL },  { S_ERR, NULL },      { S_ERR, NULL },                 { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }},
- S_OCOLON  {{ S_OVALUE, extract_json },     { S_ERR, NULL },     { S_OVALUE, extract_json },     { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_OVALUE, extract_json },      { S_OVALUE, extract_json },       { S_OVALUE, extract_json },       { S_OVALUE, extract_json }},
- S_OVALUE  {{ S_ERR, NULL },                { S_END, on_oend },  { S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },     { S_OCOMMA, NULL },   { S_ERR, NULL },                 { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }},
- S_OCOMMA  {{ S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_OKEY, on_str },              { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }},
- S_ABEGIN  {{ S_AVALUE, extract_json },     { S_ERR, NULL },     { S_AVALUE, extract_json },     { S_END, on_aend },  { S_ERR, NULL },     { S_ERR, NULL },      { S_AVALUE, extract_json },      { S_AVALUE, extract_json },       { S_AVALUE, extract_json },       { S_AVALUE, extract_json }},
- S_AVALUE  {{ S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },                { S_END, on_aend },  { S_ERR, NULL },     { S_ACOMMA, NULL },   { S_ERR, NULL },                 { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }},
- S_ACOMMA  {{ S_AVALUE, extract_json },     { S_ERR, NULL },     { S_AVALUE, extract_json },     { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_AVALUE, extract_json },      { S_AVALUE, extract_json },       { S_AVALUE, extract_json },       { S_AVALUE, extract_json }},
- S_END     {{ S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },                { S_ERR, NULL },     { S_ERR, NULL },     { S_ERR, NULL },      { S_ERR, NULL },                 { S_ERR, NULL },                  { S_ERR, NULL },                  { S_ERR, NULL }}
-};
-
-static bool is_hex(char sym) {
-    return (sym >= '0' && sym <= '9') || (sym >= 'A' && sym <= 'F') || (sym >= 'a' && sym <= 'f');
-}
-
-static lexem_t get_string(const char *s, const char **end) {
-    ++s;
-    while (*s != '\0' && *s != '"') {
-        if (*s == '\\') {
-            char next = *(s + 1);
-            if (next == '"' || next == '\\' || next == '/' || next == 'b' || next == 'f' || next == 'n' || next == 'r' || next == 't') {
-                ++s;
-            } else if (next == 'u' && is_hex(*(s + 2)) && is_hex(*(s + 3)) && is_hex(*(s + 4)) && is_hex(*(s + 5))) {
-                s += 4;
-            } else {
-                return L_ERR;
-            }
-        }
-        ++s;
-    }
-    if (*s == '\0') {
-        return L_ERR;
-    }
-    *end = s + 1;
-    return L_STR;
-}
-
-static lexem_t get_value(const char *s, const char **end) {
-    if (strncmp(s, "true", sizeof("true") - 1) == 0) {
-        *end = s + sizeof("true") - 1;
-        return L_BOOL;
-    }
-
-    if (strncmp(s, "false", sizeof("false") - 1) == 0) {
-        *end = s + sizeof("false") - 1;
-        return L_BOOL;
-    }
-
-    if (strncmp(s, "null", sizeof("null") - 1) == 0) {
-        *end = s + sizeof("null") - 1;
-        return L_NULL;
-    }
-
-    char *tmp;
-    strtod(s, &tmp);
-    if (tmp == s) {
-        return L_ERR;
-    }
-    *end = tmp;
-    return L_NUM;
-}
-
-// Лексемы: { } [ ] : , STR NUM BOOL NULL
-static lexem_t get_lexem(const char *s, const char **end) {
-    if (!s || !end) { return L_ERR; }
-
-    *end = s + 1;
-    switch (*s) {
-        case '{': return L_OBEGIN;
-        case '}': return L_OEND;
-        case '[': return L_ABEGIN;
-        case ']': return L_AEND;
-        case ':': return L_COLON;
-        case ',': return L_COMMA;
-        case '"': return get_string(s, end);
-        default: return get_value(s, end);
-    }
-
-    return L_ERR;
-}
-
-static bool extract_json(const char *s, const char **end, cjson_callback_t callback) {
-    state_t state = S_BEGIN;
-    while (*s) {
-        while (isspace(*s)) {
-            ++s;
-        }
-        lexem_t lexem = get_lexem(s, end);
-        if (lexem == L_ERR) {
-            return false;
-        }
-        rule_t rule = transitions[state][lexem];
-        if (rule.state == S_ERR) {
-            return false;
-        }
-        if (rule.action != NULL) {
-            if (!rule.action(s, end, callback)) {
-                return false;
-            }
-        }
-        state = rule.state;
-        if (rule.state == S_END) {
-            break;
-        }
-        s = *end;
-    }
-    return state == S_END;
-}
-
-{
-    "key1": {
-        "key2": [1, false, "str"],
-        "key3": true
-    },
-    "key4": "hello"
-}
-
-bool cjson_parse(const char *s, cjson_callback_t callback) {
-    if (!s) {
-        return false;
-    }
-    const char *end;
-    if (!extract_json(s, &end, callback)) {
-        return false;
-    }
-    while (isspace(*end)) {
-        ++end;
-    }
-    return *end == '\0';
-}
-
-*/
