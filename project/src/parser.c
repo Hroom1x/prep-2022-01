@@ -9,10 +9,10 @@
 #include "parser.h"
 
 #define FORMAT_STRING_MAX_SIZE 610
-#define FROM_BUF 200
-#define TO_BUF 200
-#define DATE_BUF 200
-#define PART_BUF 10
+// #define FROM_BUF 200
+// #define TO_BUF 200
+// #define DATE_BUF 200
+// #define PART_BUF 10
 
 /*
  * H - Header
@@ -49,7 +49,7 @@ typedef struct {
     int part;
 } info_t;
 
-typedef bool (*action_t)(const char *content, const char **end);
+typedef lexem_t (*action_t)(const state_t *state, char *content, char **end, info_t *msg_info);
 // typedef bool (*action_t)(const char *s, const char **end, cjson_callback_t callback)
 
 typedef struct {
@@ -58,6 +58,7 @@ typedef struct {
 } rule_t;
 
 static char *get_boundary(char *value);
+static void skip_value(char **end);
 static char *get_value(char **end);
 static char *get_line(char **end);
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info);
@@ -66,17 +67,33 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
 // "число состояний" x "число лексем"
 
 static rule_t transitions[S_COUNT][L_COUNT] = {
-        //                L_HBEGIN                                    L_HVALUE                                 L_HEND                                  L_BOUNDARY
-        /* S_HBEGIN  */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
-        /* S_HVALUE  */  {{S_ERR, NULL},                 {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_ERR, NULL}},
-        /* S_HEND    */  {{S_HBEGIN, get_lexem},  {S_HVALUE, get_lexem},   {S_HEND, get_lexem},    {S_MPART, get_lexem}},
-        /* S_PART    */  {{S_PART, get_lexem},    {S_PART, get_lexem},     {S_PART, get_lexem},    {S_ERR, NULL}},
-        /* S_MPART   */  {{S_MPART, get_lexem},   {S_MPART, get_lexem},    {S_MPART, get_lexem},   {S_MPART, get_lexem}},
-        /* S_END     */  {{S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL},                 {S_ERR, NULL}}
+        //                L_HBEGIN                                               L_HVALUE                                           L_HEND                                          L_BOUNDARY
+        /* S_HBEGIN  */  {{S_HBEGIN, (action_t) get_lexem},  {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_ERR, NULL}},
+        /* S_HVALUE  */  {{S_ERR, NULL},                            {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_ERR, NULL}},
+        /* S_HEND    */  {{S_HBEGIN, (action_t) get_lexem},  {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_MPART, (action_t) get_lexem}},
+        /* S_PART    */  {{S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},  {S_ERR, NULL}},
+        /* S_MPART   */  {{S_MPART, (action_t) get_lexem},   {S_MPART, (action_t) get_lexem},   {S_MPART, (action_t) get_lexem}, {S_MPART, (action_t) get_lexem}},
+        /* S_END     */  {{S_ERR, NULL},                            {S_ERR, NULL},                           {S_ERR, NULL},                          {S_ERR, NULL}}
 };
+
+static void skip_value(char **end) {
+    while (**end == ' ') {
+        *end = *end + 1;
+    }
+    while (true) {
+        if ((**end == '\n') && (*(*end + 1) != ' ')) {
+            break;
+        }
+        *end = *end + 1;
+    }
+    *end = *end + 1;
+}
 
 static char *get_value(char **end) {
     size_t length = 0;
+    while (**end == ' ') {
+        *end = *end + 1;
+    }
     char *start = *end;
     while (true) {
         if ((**end == '\n') && (*(*end + 1) != ' ')) {
@@ -88,15 +105,13 @@ static char *get_value(char **end) {
     char *value = calloc(length + 1, sizeof(char));
     strncpy(value, start, length);
     *end = *end + 1;
-    if (!value) {
-        free(value);
-        free(start);
-        return NULL;
-    } else
     return value;
 }
 
 static char *get_line(char **end) {
+    if (!*end) {
+        return NULL;
+    }
     size_t length = 0;
     char *start = *end;
     while (**end != '\n') {
@@ -121,12 +136,12 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
     if ((*state != S_PART) && (*state != S_MPART)) {
         if ((*content == '-') && (*(content + 1) == '-')) {
             *end = content + strlen(msg_info->boundary) + 3;
-            msg_info->part++;
+            msg_info->part += 1;
             return L_BOUNDARY;
         } else if (*content == '\n') {
             *end = *end + 1;
             return L_HEND;
-        } else if (*content && (*content != ' ') && (*content != '\n')) {
+        } else if (*content && (*content != ' ')) {
             *end = content;
             while (**end != ':') {
                 *end = *end + 1;
@@ -145,7 +160,7 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             } else if (strcasestr(header, "Date") != NULL) {
                 msg_info->date = get_value((char **) end);
             } else {
-                get_value((char **) end);
+                skip_value((char **) end);
             }
             free(header);
             return L_HEND;
@@ -213,9 +228,7 @@ char *mail_parse(char *content) {
             return NULL;
         }
         if (!rule.action) {
-            if (!rule.action(content, &end)) {
-                return NULL;
-            }
+            return NULL;
         }
         state = rule.state;
         content = end;
