@@ -86,7 +86,6 @@ static void skip_value(char **end) {
 }
 
 static char *get_value(char **end) {
-    // TODO(ME): переписать функцию для корректного считывания многострочных значений
     char *value = calloc(1, sizeof(char));
     size_t length = 0;
     while ((**end == ' ') || (**end == '\t')) {
@@ -171,12 +170,12 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             free(header);
             return L_HVALUE;
         }
-    } else {  // Part_counting
+    } else {
         char *line = get_line((char **) end);
         if (!line) {
             return L_HEND;
         }
-        if ((*line == '-') && (*(line + 1) == '-')) {
+        if ((*line == '-') && (*(line + 1) == '-') && (msg_info->boundary != NULL)) {
             if (strcmp(msg_info->boundary, line + 2) == 0) {
                 msg_info->part++;
                 free(line);
@@ -190,10 +189,11 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
 };
 
 static char *get_boundary(char *value) {
-    char *boundary_start = strcasestr(value, "boundary") + strlen("boundary=");
+    char *boundary_start = strcasestr(value, " boundary=");
     if (!boundary_start) {
         return NULL;
     }
+    boundary_start +=  + strlen(" boundary=");
     char *boundary_end = boundary_start;
     size_t length = 0;
     while ((*boundary_end != ' ') && (*boundary_end != '\n') && (*boundary_end != ';') && (*boundary_end != '\0')) {
@@ -239,6 +239,9 @@ char *mail_parse(char *content) {
         state = rule.state;
         content = end;
         if (strlen(content) == 0) {
+            if (state == S_PART) {
+                msg_info.part++;
+            }
             char output[FORMAT_STRING_MAX_SIZE];
             snprintf(output, FORMAT_STRING_MAX_SIZE,
                      "%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
