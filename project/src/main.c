@@ -25,13 +25,13 @@ static char *read_content(FILE *mail) {
 }
 
 int main(int argc, const char **argv) {
-    if (argc != 2) {
-        return -1;
-    }
+    // if (argc != 2) {
+    //     return -1;
+    // }
 
-    const char *path_to_eml = argv[1];
-    FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/message-external-body.eml", "r");
+    // const char *path_to_eml = argv[1];
+    // FILE *mail_file = fopen(path_to_eml, "r");
+    FILE *mail_file = fopen("../vkhw/btests/emails/poorly-hardly-viable-crow2.eml", "r");
     char *content = read_content(mail_file);
     fclose(mail_file);
 

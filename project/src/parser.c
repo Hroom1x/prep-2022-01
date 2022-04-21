@@ -86,21 +86,28 @@ static void skip_value(char **end) {
 }
 
 static char *get_value(char **end) {
+    // TODO(ME): переписать функцию для корректного считывания многострочных значений
+    char *value = calloc(1, sizeof(char));
     size_t length = 0;
-    while (**end == ' ') {
-        *end = *end + 1;
-    }
-    char *start = *end;
-    while (true) {
-        if ((**end == '\n') && (*(*end + 1) != ' ')) {
-            break;
+    while ((**end == ' ') || (**end == '\t')) {
+        while ((**end == ' ') || (**end == '\t')) {
+            *end = *end + 1;
         }
-        length++;
+        while (**end != '\n') {
+            length += sizeof(char);
+            value = realloc(value, length);
+            value[length - 1] = **end;
+            *end = *end + 1;
+        }
         *end = *end + 1;
+        length += sizeof(char);
+        value = realloc(value, length);
+        value[length - 1] = ' ';
     }
-    char *value = calloc(length + 1, sizeof(char));
-    strncpy(value, start, length);
-    *end = *end + 1;
+    if (!value) {
+        return NULL;
+    }
+    value[length - 1] = '\0';
     return value;
 }
 
