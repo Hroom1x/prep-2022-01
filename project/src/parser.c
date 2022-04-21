@@ -42,6 +42,7 @@ typedef struct {
     char *to;
     char *date;
     char *boundary;
+    bool empty;
     int part;
 } info_t;
 
@@ -174,6 +175,8 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
         char *line = get_line((char **) end);
         if (!line) {
             return L_HEND;
+        } else {
+            msg_info->empty = false;
         }
         if ((*line == '-') && (*(line + 1) == '-') && (msg_info->boundary != NULL)) {
             if (strcmp(msg_info->boundary, line + 2) == 0) {
@@ -220,6 +223,7 @@ char *mail_parse(char *content) {
             "",
             "",
             "",
+            true,
             0
     };
     state_t state = S_HBEGIN;
@@ -241,6 +245,9 @@ char *mail_parse(char *content) {
         if (strlen(content) == 0) {
             if (state == S_PART) {
                 msg_info.part++;
+            }
+            if (msg_info.empty) {
+                msg_info.part = 0;
             }
             char output[FORMAT_STRING_MAX_SIZE];
             snprintf(output, FORMAT_STRING_MAX_SIZE,
