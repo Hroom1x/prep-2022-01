@@ -65,9 +65,9 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
 static rule_t transitions[S_COUNT][L_COUNT] = {
         //                L_HBEGIN                                               L_HVALUE                                           L_HEND                                          L_BOUNDARY
         /* S_HBEGIN  */  {{S_HBEGIN, (action_t) get_lexem},  {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_ERR, NULL}},
-        /* S_HVALUE  */  {{S_ERR, NULL},                            {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_ERR, NULL}},
-        /* S_HEND    */  {{S_HBEGIN, (action_t) get_lexem},  {S_HVALUE, (action_t) get_lexem},  {S_HEND, (action_t) get_lexem},  {S_MPART, (action_t) get_lexem}},
-        /* S_PART    */  {{S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},  {S_ERR, NULL}},
+        /* S_HVALUE  */  {{S_ERR, NULL},                            {S_HVALUE, (action_t) get_lexem},  {S_PART, (action_t) get_lexem},  {S_ERR, NULL}},
+        /* S_HEND    */  {{S_HBEGIN, (action_t) get_lexem},  {S_HVALUE, (action_t) get_lexem},  {S_PART, (action_t) get_lexem},  {S_MPART, (action_t) get_lexem}},
+        /* S_PART    */  {{S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},    {S_PART, (action_t) get_lexem},  {S_MPART, (action_t) get_lexem}},
         /* S_MPART   */  {{S_MPART, (action_t) get_lexem},   {S_MPART, (action_t) get_lexem},   {S_MPART, (action_t) get_lexem}, {S_MPART, (action_t) get_lexem}},
         /* S_END     */  {{S_ERR, NULL},                            {S_ERR, NULL},                           {S_ERR, NULL},                          {S_ERR, NULL}}
 };
@@ -144,9 +144,9 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
         } else if (*content == '\n') {
             *end = *end + 1;
             return L_HEND;
-        } else if (*content == ' ') {
+        } else if ((*content == ' ') || (*content == '\t')) {
             skip_value((char **) end);
-            return L_HEND;
+            return L_HVALUE;
         } else if (*content) {
             *end = content;
             while (**end != ':') {
@@ -169,7 +169,7 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
                 skip_value((char **) end);
             }
             free(header);
-            return L_HEND;
+            return L_HVALUE;
         }
     } else {  // Part_counting
         char *line = get_line((char **) end);
