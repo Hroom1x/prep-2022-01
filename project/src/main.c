@@ -11,8 +11,7 @@ static char *read_content(FILE *mail) {
         return NULL;
     }
 
-    char *content = 0;
-
+    char *content;
     fseek(mail, 0, SEEK_END);
     size_t length = ftell(mail);
     fseek(mail, 0, SEEK_SET);
@@ -20,18 +19,17 @@ static char *read_content(FILE *mail) {
     if (content) {
         fread(content, 1, length, mail);
     }
-
     return content;
 }
 
 int main(int argc, const char **argv) {
-    if (argc != 2) {
-        return -1;
-    }
+    //if (argc != 2) {
+    //    return -1;
+    //}
 
-    const char *path_to_eml = argv[1];
-    FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/false-multipart.eml", "r");
+    //const char *path_to_eml = argv[1];
+    //FILE *mail_file = fopen(path_to_eml, "r");
+    FILE *mail_file = fopen("../vkhw/btests/emails/on-bobcat.eml", "rb");
     char *content = read_content(mail_file);
     fclose(mail_file);
 
