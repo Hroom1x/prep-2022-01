@@ -242,9 +242,6 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
         }
     } else {
         char *line = get_line((char **) end);
-        if (strlen(content) < 12100) {
-            puts("123");
-        }
         if (!line) {
             return L_HEND;
         } else {
