@@ -92,7 +92,7 @@ static void skip_value(char **end) {
 static char *get_value(char **end) {
     char *value = calloc(1, sizeof(char));
     size_t length = 0;
-    while ((**end == ' ') || (**end == '\t')) {
+    do {
         while ((**end == ' ') || (**end == '\t')) {
             *end = *end + 1;
         }
@@ -118,7 +118,7 @@ static char *get_value(char **end) {
         length += sizeof(char);
         value = realloc(value, length);
         value[length - 1] = ' ';
-    }
+    } while ((**end == ' ') || (**end == '\t'));
     if (!value) {
         return NULL;
     }
@@ -129,7 +129,7 @@ static char *get_value(char **end) {
 static char *get_line(char **end) {
     char *value = calloc(1, sizeof(char));
     size_t length = 0;
-    while (**end != '\n') {
+    while (**end != '\n' && **end != '\0') {
         if (**end == '\r') {
             *end = *end + 1;
             continue;
@@ -164,7 +164,7 @@ static char *get_header(char **end) {
     }
     size_t length = 0;
     char *start = *end;
-    while (**end != ':') {
+    while (**end != ':' && **end != '\n') {
         length++;
         *end = *end + 1;
     }
@@ -240,20 +240,27 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             free(header);
             return L_HVALUE;
         }
-    } else {
+    } else if (*state == S_MPART) {
         char *line = get_line((char **) end);
         if (!line) {
             return L_HEND;
-        } else {
-            msg_info->empty = false;
         }
-        if ((*line == '-') && (*(line + 1) == '-') && (msg_info->boundary != NULL)) {
+        if ((*line == '-') && (*(line + 1) == '-')) {
             if (strcmp(msg_info->boundary, line + 2) == 0) {
+                msg_info->empty = false;
                 msg_info->part++;
                 free(line);
                 return L_BOUNDARY;
             }
         }
+        free(line);
+        return L_HEND;
+    } else if (*state == S_PART) {
+        char *line = get_line((char **) end);
+        if (!line) {
+            return L_HEND;
+        }
+        msg_info->empty = false;
         free(line);
         return L_HEND;
     }
@@ -265,6 +272,9 @@ static char *get_boundary(char *value) {
     size_t length = 0;
     char *end = strcasestr(value, " boundary=");
     if (!end) {
+        end = strcasestr(value, ";boundary=");
+    }
+    if (!end) {
         free(boundary);
         return NULL;
     }
@@ -272,6 +282,7 @@ static char *get_boundary(char *value) {
     while ((*end != ' ') && (*end != '\n') && (*end != '\r') && (*end != ';') && (*end != '\0')) {
         if (*end == '\'' || *end == '\"') {
             end += 1;
+            continue;
         }
         length += sizeof(char);
         void *temp = realloc(boundary, length);
@@ -327,6 +338,9 @@ char *mail_parse(char *content) {
         }
         state = rule.state;
         content = end;
+        if (strlen(msg_info.boundary) != 0 && state == S_PART) {
+            state = S_MPART;
+        }
         if (strlen(content) == 0) {
             if (state == S_PART) {
                 msg_info.part++;

@@ -36,7 +36,7 @@ int main(int argc, const char **argv) {
 
     const char *path_to_eml = argv[1];
     FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/on-bobcat.eml", "rb");
+    // FILE *mail_file = fopen("../vkhw/btests/emails/poorly-hardly-viable-crow2.eml", "rb");
     char *content = read_content(mail_file);
     fclose(mail_file);
 
