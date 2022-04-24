@@ -108,8 +108,7 @@ static char *get_value(char **end) {
                 free(temp);
                 free(value);
                 return NULL;
-            }
-            else {
+            } else {
                 value = temp;
             }
             value[length - 1] = **end;
@@ -141,8 +140,7 @@ static char *get_line(char **end) {
             free(value);
             free(temp);
             return NULL;
-        }
-        else {
+        } else {
             value = temp;
         }
         value[length - 1] = **end;
@@ -224,11 +222,13 @@ static void free_msg_info(info_t *info) {
 
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info) {
     if ((*state != S_PART) && (*state != S_MPART)) {
+        /*
         if ((*content == '-') && (*(content + 1) == '-')) {
             *end = content + strlen(msg_info->boundary) + 3;
             msg_info->part += 1;
             return L_BOUNDARY;
-        } else if (*content == '\r') {
+        } else */
+        if (*content == '\r') {
             *end = *end + 1;
             if (**end == '\n') {
                 *end = *end + 1;
@@ -271,12 +271,12 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
             return L_HEND;
         }
         if ((*line == '-') && (*(line + 1) == '-')) {
-            if (strcmp(msg_info->boundary, line + 2) == 0) {
+            if (msg_info->boundary != NULL && strcmp(msg_info->boundary, line + 2) == 0) {
                 msg_info->empty = false;
                 msg_info->part++;
-                free(line);
-                return L_BOUNDARY;
             }
+            free(line);
+            return L_BOUNDARY;
         }
         free(line);
         return L_HEND;
@@ -290,7 +290,7 @@ static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t
         return L_HEND;
     }
     return L_ERR;
-};
+}
 
 static char *get_boundary(char *value) {
     char *boundary = calloc(1, sizeof(char));
@@ -315,8 +315,7 @@ static char *get_boundary(char *value) {
             free(boundary);
             free(temp);
             return NULL;
-        }
-        else {
+        } else {
             boundary = temp;
         }
         boundary[length - 1] = *end;
@@ -324,13 +323,9 @@ static char *get_boundary(char *value) {
     }
     length += sizeof(char);
     boundary = realloc(boundary, length);
-    // if (!boundary || length == 1) {
-    //     free(boundary);
-    //     return NULL;
-    // }
     boundary[length - 1] = '\0';
     return boundary;
-};
+}
 
 char *mail_parse(char *content) {
     if (!content) {
@@ -373,7 +368,6 @@ char *mail_parse(char *content) {
             if (msg_info.empty) {
                 msg_info.part = 0;
             }
-            // printf("%s", get_result(&msg_info));
             return get_result(&msg_info);
         }
     }

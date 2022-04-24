@@ -20,8 +20,7 @@ static char *read_content(FILE *mail) {
             free(temp);
             free(buf);
             return NULL;
-        }
-        else {
+        } else {
             content = temp;
             content[length - 2] = *buf;
         }
