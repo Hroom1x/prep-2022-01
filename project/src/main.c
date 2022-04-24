@@ -18,6 +18,7 @@ static char *read_content(FILE *mail) {
         if (temp == NULL) {
             free(content);
             free(temp);
+            free(buf);
             return NULL;
         }
         else {
@@ -25,6 +26,7 @@ static char *read_content(FILE *mail) {
             content[length - 2] = *buf;
         }
     }
+    free(buf);
     content[length - 1] = '\0';
     return content;
 }
@@ -36,15 +38,17 @@ int main(int argc, const char **argv) {
 
     const char *path_to_eml = argv[1];
     FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/poorly-hardly-viable-crow2.eml", "rb");
+    // FILE *mail_file = fopen("../vkhw/btests/emails/poetic-llama3.eml", "rb");
     char *content = read_content(mail_file);
     fclose(mail_file);
 
     char *res = mail_parse(content);
-
     if (!res) {
         return -1;
     }
+    puts(res);
+    free(content);
 
+    // free(res);
     return 0;
 }

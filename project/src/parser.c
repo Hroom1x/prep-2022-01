@@ -7,7 +7,7 @@
 
 #include "parser.h"
 
-#define FORMAT_STRING_MAX_SIZE 1000000
+#define FORMAT_STRING_MAX_SIZE 3000000
 
 /*
  * H - Header
@@ -57,6 +57,7 @@ static void skip_value(char **end);
 static char *get_value(char **end);
 static char *get_line(char **end);
 static char *get_header(char **end);
+static char *get_result(info_t *msg_info);
 static void free_msg_info(info_t *info);
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info);
 
@@ -104,8 +105,8 @@ static char *get_value(char **end) {
             length += sizeof(char);
             void *temp = realloc(value, length);
             if (temp == NULL) {
-                free(value);
                 free(temp);
+                free(value);
                 return NULL;
             }
             else {
@@ -119,9 +120,9 @@ static char *get_value(char **end) {
         value = realloc(value, length);
         value[length - 1] = ' ';
     } while ((**end == ' ') || (**end == '\t'));
-    if (!value) {
-        return NULL;
-    }
+    // if (!value) {
+    //     return NULL;
+    // }
     value[length - 1] = '\0';
     return value;
 }
@@ -150,10 +151,10 @@ static char *get_line(char **end) {
     *end = *end + 1;
     length += sizeof(char);
     value = realloc(value, length);
-    if (!value || length == 1) {
-        free(value);
-        return NULL;
-    }
+    // if (!value || length == 1) {
+    //     free(value);
+    //     return NULL;
+    // }
     value[length - 1] = '\0';
     return value;
 }
@@ -182,19 +183,43 @@ static char *get_header(char **end) {
     return value;
 }
 
+static char *get_result(info_t *msg_info) {
+    static char result[FORMAT_STRING_MAX_SIZE];
+    char *from = "";
+    char *to = "";
+    char *date = "";
+    if (msg_info->from != NULL) {
+        from = msg_info->from;
+    }
+    if (msg_info->to != NULL) {
+        to = msg_info->to;
+    }
+    if (msg_info->date != NULL) {
+        date = msg_info->date;
+    }
+    snprintf(result, FORMAT_STRING_MAX_SIZE,
+             "%s|%s|%s|%d", from, to, date, msg_info->part);
+    free_msg_info(msg_info);
+    return result;
+}
+
 static void free_msg_info(info_t *info) {
-    if (*info->from != '\0') {
-        free(info->from);
-    }
-    if (*info->to != '\0') {
-        free(info->to);
-    }
-    if (*info->date != '\0') {
-        free(info->date);
-    }
-    if (*info->boundary != '\0') {
-        free(info->boundary);
-    }
+    free(info->from);
+    free(info->to);
+    free(info->date);
+    free(info->boundary);
+    // if (info->from != NULL) {
+    //     free(info->from);
+    // }
+    // if (info->to != NULL) {
+    //     free(info->to);
+    // }
+    // if (info->date != NULL) {
+    //     free(info->date);
+    // }
+    // if (info->boundary != NULL) {
+    //     free(info->boundary);
+    // }
 }
 
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info) {
@@ -299,10 +324,10 @@ static char *get_boundary(char *value) {
     }
     length += sizeof(char);
     boundary = realloc(boundary, length);
-    if (!boundary || length == 1) {
-        free(boundary);
-        return NULL;
-    }
+    // if (!boundary || length == 1) {
+    //     free(boundary);
+    //     return NULL;
+    // }
     boundary[length - 1] = '\0';
     return boundary;
 };
@@ -312,10 +337,10 @@ char *mail_parse(char *content) {
         return NULL;
     }
     info_t msg_info = {
-            "\0",
-            "\0",
-            "\0",
-            "\0",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
             true,
             0
     };
@@ -338,7 +363,7 @@ char *mail_parse(char *content) {
         }
         state = rule.state;
         content = end;
-        if (strlen(msg_info.boundary) != 0 && state == S_PART) {
+        if (msg_info.boundary != NULL && state == S_PART) {
             state = S_MPART;
         }
         if (strlen(content) == 0) {
@@ -348,12 +373,8 @@ char *mail_parse(char *content) {
             if (msg_info.empty) {
                 msg_info.part = 0;
             }
-            char output[FORMAT_STRING_MAX_SIZE];
-            snprintf(output, FORMAT_STRING_MAX_SIZE,
-                     "%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
-            printf("%s|%s|%s|%d", msg_info.from, msg_info.to, msg_info.date, msg_info.part);
-            free_msg_info(&msg_info);
-            return "OK";
+            // printf("%s", get_result(&msg_info));
+            return get_result(&msg_info);
         }
     }
     free_msg_info(&msg_info);
