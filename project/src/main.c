@@ -9,10 +9,18 @@ static char *read_content(FILE *mail) {
         return NULL;
     }
 
+    fseek(mail, 0, SEEK_END);
+    size_t length = ftell(mail);
+    rewind(mail);
+    char *content = malloc(length + 1);
+    fread(content, sizeof(char), length, mail);
+    content[length] = '\0';
+    return content;
+    /*
     char *content = calloc(1, sizeof(char));
     char *buf = calloc(1, sizeof(char));
     size_t length = sizeof(char);
-    while (fread(buf, 1, 1, mail) == 1) {
+    while (fread(buf, sizeof(char), 1, mail) == sizeof(char)) {
         length += sizeof(char);
         void *temp = realloc(content, length);
         if (temp == NULL) {
@@ -28,6 +36,7 @@ static char *read_content(FILE *mail) {
     free(buf);
     content[length - 1] = '\0';
     return content;
+    */
 }
 
 int main(int argc, const char **argv) {
@@ -37,7 +46,7 @@ int main(int argc, const char **argv) {
 
     const char *path_to_eml = argv[1];
     FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/poetic-llama3.eml", "rb");
+    // FILE *mail_file = fopen("../vkhw/btests/emails/long-header.eml", "rb");
     char *content = read_content(mail_file);
     fclose(mail_file);
 
@@ -47,7 +56,5 @@ int main(int argc, const char **argv) {
     }
     puts(res);
     free(content);
-
-    // free(res);
     return 0;
 }
