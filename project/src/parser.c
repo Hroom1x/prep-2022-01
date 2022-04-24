@@ -119,9 +119,6 @@ static char *get_value(char **end) {
         value = realloc(value, length);
         value[length - 1] = ' ';
     } while ((**end == ' ') || (**end == '\t'));
-    // if (!value) {
-    //     return NULL;
-    // }
     value[length - 1] = '\0';
     return value;
 }
@@ -146,13 +143,11 @@ static char *get_line(char **end) {
         value[length - 1] = **end;
         *end = *end + 1;
     }
-    *end = *end + 1;
+    if (**end != '\0') {
+        *end = *end + 1;
+    }
     length += sizeof(char);
     value = realloc(value, length);
-    // if (!value || length == 1) {
-    //     free(value);
-    //     return NULL;
-    // }
     value[length - 1] = '\0';
     return value;
 }
@@ -206,28 +201,10 @@ static void free_msg_info(info_t *info) {
     free(info->to);
     free(info->date);
     free(info->boundary);
-    // if (info->from != NULL) {
-    //     free(info->from);
-    // }
-    // if (info->to != NULL) {
-    //     free(info->to);
-    // }
-    // if (info->date != NULL) {
-    //     free(info->date);
-    // }
-    // if (info->boundary != NULL) {
-    //     free(info->boundary);
-    // }
 }
 
 static lexem_t get_lexem(const state_t *state, char *content, char **end, info_t *msg_info) {
     if ((*state != S_PART) && (*state != S_MPART)) {
-        /*
-        if ((*content == '-') && (*(content + 1) == '-')) {
-            *end = content + strlen(msg_info->boundary) + 3;
-            msg_info->part += 1;
-            return L_BOUNDARY;
-        } else */
         if (*content == '\r') {
             *end = *end + 1;
             if (**end == '\n') {

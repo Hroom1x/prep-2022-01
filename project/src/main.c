@@ -46,12 +46,13 @@ int main(int argc, const char **argv) {
 
     const char *path_to_eml = argv[1];
     FILE *mail_file = fopen(path_to_eml, "r");
-    // FILE *mail_file = fopen("../vkhw/btests/emails/long-header.eml", "rb");
+    // FILE *mail_file = fopen("../vkhw/btests/emails/message-external-body.eml", "rb");
     char *content = read_content(mail_file);
     fclose(mail_file);
 
     char *res = mail_parse(content);
     if (!res) {
+        free(content);
         return -1;
     }
     puts(res);
