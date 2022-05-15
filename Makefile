@@ -1,10 +1,16 @@
-CALC_SRCS=calc/*.cpp
-CALC_HEADERS=calc/*.hpp
-UTILS_HEADERS=net/common/*.hpp
-SERVER_SRCS=net/server/*.cpp
-SERVER_HEADERS=net/server/*.hpp
-CLIENT_SRCS=net/client/*.cpp
-CLIENT_HEADERS=net/client/*.hpp
+CALC_SRCS=calc/matrix.cpp
+CALC_HEADERS=calc/matrix.hpp
+UTILS_HEADERS=net/common/utils.hpp
+SERVER_SRCS = \
+		net/server/planner.cpp \
+		net/server/server.cpp \
+		net/server/worker.cpp
+SERVER_HEADERS = \
+		net/server/planner.hpp \
+		net/server/server.hpp \
+		net/server/worker.hpp
+CLIENT_SRCS=net/client/client.cpp
+CLIENT_HEADERS=net/client/client.hpp
 CALC_TEST_GENERATOR_SRCS=tests/tests_generator.cpp
 CALC_TEST_GENERATOR_HEADERS=tests/tests_generator.hpp
 CLIENT_TEST_SRCS=tests/test_client.cpp
