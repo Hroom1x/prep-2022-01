@@ -7,34 +7,31 @@ namespace task {
 
 template<class T>
 class list {
-
-public:
+ public:
     class iterator {
-    public:
+     public:
         using difference_type = ptrdiff_t;
         using value_type = T;
         using pointer = T*;
         using reference = T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        iterator();
-        iterator(const iterator&);
-        iterator& operator=(const iterator&);
+        iterator() : node() {};
+        // iterator(const iterator&);
+        // iterator& operator=(const iterator&);
 
-        iterator& operator++();
-        iterator operator++(int);
-        reference operator*() const;
-        pointer operator->() const;
-        iterator& operator--();
-        iterator operator--(int);
+        iterator& operator++() { node++; return *this; };
+        iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; };
+        reference operator*() const { return *node; };
+        pointer operator->() const { return node; };
+        iterator& operator--() { node--; return *this; };
+        iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; };
 
-        bool operator==(iterator other) const;
-        bool operator!=(iterator other) const;
+        bool operator==(iterator other) const { return this == other;};
+        bool operator!=(iterator other) const { return this != other;};
 
-        // Your code goes here?..
-
-    private:
-        // Your code hoes here...
+     private:
+        pointer node;
     };
 
     class const_iterator {
@@ -45,7 +42,7 @@ public:
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-    list();
+    list() = default;
     list(size_t count, const T& value);
     explicit list(size_t count);
     ~list();
@@ -74,7 +71,7 @@ public:
 
 
     bool empty() const;
-    size_t size() const;
+    size_t size() const { return count; };
     size_t max_size() const;
     void clear();
 
@@ -104,11 +101,18 @@ public:
 
     // Your code goes here?..
 
-private:
+ private:
 
-    // Your code goes here...
+    size_t count;
 
 };
+
+    template<class T>
+    list<T>::list(size_t count, const T &value) : count(count) {
+
+        //
+
+    }
 
 // Your template function definitions may go here...
 
