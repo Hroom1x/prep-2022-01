@@ -57,8 +57,8 @@ class list {
     const T& back() const;
 
 
-    iterator begin() const;
-    iterator end() const;
+    iterator begin() const { return _first; }
+    iterator end() const { return _last; }
 
     const_iterator cbegin() const;
     const_iterator cend() const;
@@ -70,9 +70,9 @@ class list {
     const_reverse_iterator crend() const;
 
 
-    bool empty() const;
-    size_t size() const { return count; };
-    size_t max_size() const;
+    bool empty() const { return _count == 0; }
+    size_t size() const { return _count; }
+    size_t max_size() const { return _max_size; }
     void clear();
 
     iterator insert(const_iterator pos, const T& value);
@@ -103,17 +103,26 @@ class list {
 
  private:
 
-    size_t count;
+    size_t _count;
+    size_t _max_size;
+    iterator _first;
+    iterator _last;
 
 };
 
     template<class T>
-    list<T>::list(size_t count, const T &value) : count(count) {
-
-        //
-
+    list<T>::list(size_t count, const T &value) : _count(count) {
+        _first = new T[count];
+        _last = _first + count;
+        std::fill(_first, _last, value);
     }
 
-// Your template function definitions may go here...
+    template<class T>
+    void list<T>::resize(size_t count) {
+        iterator temp = std::copy(_first, _first + count);
+        delete[] _first;
+        list::_first = temp;
+        _last = _first + count;
+    }
 
 }  // namespace task
