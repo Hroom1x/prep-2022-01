@@ -67,10 +67,10 @@ class list {
     list& operator=(const list& other);
 
     T& front() { return *begin(); }
-    const T& front() const;
+    const T& front() const { return *begin(); }
 
-    T& back();
-    const T& back() const;
+    T& back() { return *std::prev(end()); }
+    const T& back() const { return *std::prev(end()); }
 
 
     iterator begin() const { return iterator(m_data); }
@@ -143,11 +143,12 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::iterator pos, const T &value) {
-        T* temp = new T[++_size];
+        T* temp = new T[_size + 1];
         std::copy(begin(), pos, iterator(temp));
         iterator new_pos = iterator(temp + std::distance(begin(), pos));
         *new_pos = value;
         std::copy(pos, end(), std::next(new_pos, 1));
+        ++_size;
         delete []m_data;
         m_data = temp;
         return iterator(m_data);
@@ -159,10 +160,14 @@ class list {
     }
 
     template<class T>
+    void list<T>::push_front(const T &value) {
+        this->insert(begin(), value);
+    }
+
+    template<class T>
     class list<T>::iterator list<T>::erase(iterator pos) {
-        T* temp = new T[_size];
+        T* temp = new T[_size - 1];
         std::copy(begin(), pos, iterator(temp));
-        //iterator new_pos = ;
         std::copy(std::next(pos), end(), iterator(temp + std::distance(begin(), pos)));
         --_size;
         delete []m_data;
@@ -178,6 +183,21 @@ class list {
     template<class T>
     void list<T>::pop_back() {
         this->erase(std::prev(end()));
+    }
+
+    template<class T>
+    void list<T>::clear() {
+        m_data = new T[0];
+        _size = 0;
+    }
+
+    template<class T>
+    void list<T>::resize(size_t count) {
+        T* temp = new T[count];
+        std::copy(begin(), end(), iterator(temp));
+        _size = count;
+        delete []m_data;
+        m_data = temp;
     }
 
 }  // namespace task
