@@ -18,7 +18,7 @@ class list {
 
         iterator(pointer ptr) : node(ptr) { };
         iterator(const iterator& it) : node(it.node) { };
-        iterator& operator=(const iterator& it) { node = it.node; }
+        iterator& operator=(const iterator& it) { node = it.node; return *this; }
 
         iterator& operator++() { node++; return *this; }
         iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
@@ -27,8 +27,8 @@ class list {
         iterator& operator--() { node--; return *this; }
         iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
 
-        bool operator==(iterator other) const { return this == other;}
-        bool operator!=(iterator other) const { return this != other;}
+        bool operator==(iterator other) const { return this->node == other.node; }
+        bool operator!=(iterator other) const { return this->node != other.node; }
 
      private:
         pointer node;
@@ -72,10 +72,10 @@ class list {
 
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; }
-    size_t max_size() const { return _allocator.max_size(); }
+    size_t max_size() const { return _size; }
     void clear();
 
-    iterator insert(const_iterator pos, const T& value);
+    iterator insert(iterator pos, const T& value);
     iterator insert(const_iterator pos, size_t count, const T& value);
 
     iterator erase(const_iterator pos);
@@ -105,24 +105,35 @@ class list {
 
     size_t _size;
     T* m_data;
-    std::allocator<T> _allocator;
 
 };
 
     template<class T>
     list<T>::list(size_t count, const T &value) : _size(count) {
-        m_data = _allocator.allocate(count);
+        m_data = new T[count];
         std::fill(begin(), end(), value);
     }
 
     template<class T>
     list<T>::list(size_t count) : _size(count) {
-        m_data = _allocator.allocate(count);
+        m_data = new T[count];
     }
 
     template<class T>
-    class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
-        T* temp = _allocator.allocate(_size++);
+    class list<T>::iterator list<T>::insert(list::iterator pos, const T &value) {
+        T* temp = new T[++_size];
+        std::move(begin(), pos, iterator(temp));
+        iterator new_pos = iterator(temp + std::distance(begin(), pos));
+        *new_pos = value;
+        std::move(pos, end(), std::next(new_pos, 1));
+        delete []m_data;
+        m_data = temp;
+        return new_pos;
+    }
+
+    template<class T>
+    void list<T>::push_back(const T &value) {
+        this->insert(end(), value);
     }
 
 }  // namespace task
