@@ -57,12 +57,19 @@ int main() {
         list.push_back(42);
         ASSERT_TRUE(list.size() == 1)
         list.push_back(2);
+        // {
+        //     std::cout << std::endl << "begin";
+        //     for (auto it = list.begin(); it != list.end(); it++) {
+        //         std::cout << " " << *it << " ";
+        //     }
+        //     std::cout << "end" << std::endl;
+        // }
         list.pop_front();
         ASSERT_TRUE(list.front() == 2)
         list.pop_back();
         ASSERT_TRUE(list.empty())
     }
-
+/*
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -88,18 +95,18 @@ int main() {
         std::list<size_t> list_std(10, 30);
         ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
 
-        // list_task.insert(list_task.begin(), 20);
+        list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
 
-        // list_task.insert(list_task.end(), 10, 20);
+        list_task.insert(list_task.end(), 10, 20);
         list_std.insert(list_std.end(), 10, 20);
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
-        // list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
+        list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
         list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
 
-        // list_task.erase(std::prev(list_task.end(), 5), list_task.end());
+        list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
@@ -116,9 +123,9 @@ int main() {
         ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
 
         list2.resize(0);
-        // for (auto it = list.crbegin(); it != list.crend(); ++it) {
-        //     list2.push_back(*it);
-        // }
+        for (auto it = list.crbegin(); it != list.crend(); ++it) {
+            list2.push_back(*it);
+        }
         list.reverse();
         ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
 
@@ -169,9 +176,9 @@ int main() {
 
             auto& element_reference = list_task2.front();
 
-            // auto task_it = list_task.begin();
+            auto task_it = list_task.begin();
             auto std_it = list_std.begin();
-            // list_task.splice(++task_it, list_task2);
+            list_task.splice(++task_it, list_task2);
             list_std.splice(++std_it, list_std2);
 
             element_reference = 101;
@@ -276,5 +283,5 @@ int main() {
             }
         }
     }
-
+*/
 }

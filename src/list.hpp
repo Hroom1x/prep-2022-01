@@ -16,7 +16,7 @@ class list {
         using reference = T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        iterator(pointer ptr) : node(ptr) { };
+        explicit iterator(pointer ptr) : node(ptr) { };
         iterator(const iterator& it) : node(it.node) { };
         iterator& operator=(const iterator& it) { node = it.node; return *this; }
 
@@ -34,23 +34,39 @@ class list {
         pointer node;
     };
 
-    class const_iterator : iterator {
-        // Your code goes here...
+    class const_iterator {
+     public:
+        using difference_type = ptrdiff_t;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::bidirectional_iterator_tag;
+
+        const_iterator(pointer ptr) : node(ptr) { };
+        const_iterator(const iterator& it) : node(it.operator->()) { };
+
+        reference operator*() const { return *node; }
+        pointer operator->() const { return node; }
+
+        bool operator==(const_iterator other) const { return this->node == other.node; }
+        bool operator!=(const_iterator other) const { return this->node != other.node; }
+     private:
+        pointer node;
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-    list() = default;
+    list();
     list(size_t count, const T& value);
     explicit list(size_t count);
-    ~list();
+    ~list() { delete []m_data; }
 
     list(const list& other);
     list& operator=(const list& other);
 
-    T& front();
+    T& front() { return *begin(); }
     const T& front() const;
 
     T& back();
@@ -78,7 +94,7 @@ class list {
     iterator insert(iterator pos, const T& value);
     iterator insert(const_iterator pos, size_t count, const T& value);
 
-    iterator erase(const_iterator pos);
+    iterator erase(iterator pos);
     iterator erase(const_iterator first, const_iterator last);
 
 
@@ -109,6 +125,12 @@ class list {
 };
 
     template<class T>
+    list<T>::list() {
+        m_data = new T[0];
+        _size = 0;
+    }
+
+    template<class T>
     list<T>::list(size_t count, const T &value) : _size(count) {
         m_data = new T[count];
         std::fill(begin(), end(), value);
@@ -122,18 +144,40 @@ class list {
     template<class T>
     class list<T>::iterator list<T>::insert(list::iterator pos, const T &value) {
         T* temp = new T[++_size];
-        std::move(begin(), pos, iterator(temp));
+        std::copy(begin(), pos, iterator(temp));
         iterator new_pos = iterator(temp + std::distance(begin(), pos));
         *new_pos = value;
-        std::move(pos, end(), std::next(new_pos, 1));
+        std::copy(pos, end(), std::next(new_pos, 1));
         delete []m_data;
         m_data = temp;
-        return new_pos;
+        return iterator(m_data);
     }
 
     template<class T>
     void list<T>::push_back(const T &value) {
         this->insert(end(), value);
+    }
+
+    template<class T>
+    class list<T>::iterator list<T>::erase(iterator pos) {
+        T* temp = new T[_size];
+        std::copy(begin(), pos, iterator(temp));
+        //iterator new_pos = ;
+        std::copy(std::next(pos), end(), iterator(temp + std::distance(begin(), pos)));
+        --_size;
+        delete []m_data;
+        m_data = temp;
+        return end();
+    }
+
+    template<class T>
+    void list<T>::pop_front() {
+        this->erase(begin());
+    }
+
+    template<class T>
+    void list<T>::pop_back() {
+        this->erase(std::prev(end()));
     }
 
 }  // namespace task
