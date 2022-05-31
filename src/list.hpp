@@ -230,4 +230,48 @@ class list {
         return end();
     }
 
+    template<class T>
+    void list<T>::sort() {
+        // TODO(): rewrite without iterator dereference
+        // Temp implementation
+        // Bubble sort
+        for (iterator it1 = begin(); it1 != std::prev(end()); ++it1) {
+            for (iterator it2 = it1; it2 != std::prev(end(), std::distance(begin(), it1) - 1); ++it2) {
+                if (*it2 > *std::next(it2)) {
+                    T temp = *it2;
+                    *it2 = *std::next(it2);
+                    *std::next(it2) = temp;
+                }
+            }
+        }
+    }
+
+    template<class T>
+    void list<T>::reverse() {
+        //
+    }
+
+    template<class T>
+    list<T>::list(const list &other) {
+        if (&other != this) {
+            _size = other._size;
+            m_data = new T[_size];
+
+            std::copy_n(other.m_data, _size, m_data);
+        }
+    }
+
+    template<class T>
+    class list<T>& list<T>::operator=(const list &other)  {
+        if (&other != this) {
+            delete[] m_data;
+
+            _size = other._size;
+            m_data = new T[_size];
+
+            std::copy_n(other.m_data, _size, m_data);
+        }
+        return *this;
+    }
+
 }  // namespace task
