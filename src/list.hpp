@@ -38,8 +38,8 @@ class list {
      public:
         using difference_type = ptrdiff_t;
         using value_type = T;
-        using pointer = T*;
-        using reference = T&;
+        using pointer = const T*;
+        using reference = const T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
         explicit const_iterator(pointer ptr) : node(ptr) { };
@@ -49,7 +49,7 @@ class list {
 
         const_iterator& operator++() { node++; return *this; }
         const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
-        value_type operator*() const { return *node; }
+        reference operator*() const { return *node; }
         pointer operator->() const { return node; }
         const_iterator& operator--() { node--; return *this; }
         const_iterator operator--(int) { const_iterator tmp = *this; --(*this); return tmp; }
@@ -82,14 +82,14 @@ class list {
     iterator begin() const { return iterator(m_data); }
     iterator end() const { return iterator(m_data + _size); }
 
-    const_iterator cbegin() const { return const_iterator(m_data); }
-    const_iterator cend() const { return const_iterator(m_data + _size); }
+    const_iterator cbegin() const { return const_iterator(begin()); }
+    const_iterator cend() const { return const_iterator(end()); }
 
-    reverse_iterator rbegin() const;
-    reverse_iterator rend() const;
+    reverse_iterator rbegin() const { return make_reverse_iterator(end()); }
+    reverse_iterator rend() const { return make_reverse_iterator(begin()); }
 
-    const_reverse_iterator crbegin() const;
-    const_reverse_iterator crend() const;
+    const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
+    const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
 
 
     bool empty() const { return _size == 0; }
