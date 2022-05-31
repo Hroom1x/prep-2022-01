@@ -206,4 +206,28 @@ class list {
         m_data = temp;
     }
 
+    template<class T>
+    class list<T>::iterator list<T>::insert(list::const_iterator pos, size_t count, const T &value) {
+        T* temp = new T[_size + count];
+        std::copy(cbegin(), pos, iterator(temp));
+        iterator new_pos = iterator(temp + std::distance(cbegin(), pos));
+        std::fill(new_pos, std::next(new_pos, count), value);
+        std::copy(pos, cend(), std::next(new_pos, count));
+        _size += count;
+        delete []m_data;
+        m_data = temp;
+        return iterator(m_data);
+    }
+
+    template<class T>
+    class list<T>::iterator list<T>::erase(list::const_iterator first, list::const_iterator last) {
+        T* temp = new T[_size - std::distance(first, last)];
+        std::copy(cbegin(), first, iterator(temp));
+        std::copy(last, cend(), iterator(temp + std::distance(cbegin(), first)));
+        _size -= std::distance(first, last);
+        delete []m_data;
+        m_data = temp;
+        return end();
+    }
+
 }  // namespace task

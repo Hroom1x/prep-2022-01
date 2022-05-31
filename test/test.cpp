@@ -57,13 +57,15 @@ int main() {
         list.push_back(42);
         ASSERT_TRUE(list.size() == 1)
         list.push_back(2);
-        // {
-        //     std::cout << std::endl << "begin";
-        //     for (auto it = list.begin(); it != list.end(); it++) {
-        //         std::cout << " " << *it << " ";
-        //     }
-        //     std::cout << "end" << std::endl;
-        // }
+        /*
+        {
+            std::cout << std::endl << "begin";
+            for (auto it = list.begin(); it != list.end(); it++) {
+                std::cout << " " << *it << " ";
+            }
+            std::cout << "end" << std::endl;
+        }
+        */
         list.pop_front();
         ASSERT_TRUE(list.front() == 2)
         list.pop_back();
@@ -90,55 +92,55 @@ int main() {
         ASSERT_TRUE(list.back() == int())
     }
 
-    //{
-    //    task::list<size_t> list_task(10, 30);
-    //    std::list<size_t> list_std(10, 30);
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
+    {
+        task::list<size_t> list_task(10, 30);
+        std::list<size_t> list_std(10, 30);
+        ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
 
-    //    list_task.insert(list_task.begin(), 20);
-    //    list_std.insert(list_std.begin(), 20);
+        list_task.insert(list_task.cbegin(), 20);
+        list_std.insert(list_std.begin(), 20);
 
-    //    list_task.insert(list_task.end(), 10, 20);
-    //    list_std.insert(list_std.end(), 10, 20);
+        list_task.insert(list_task.cend(), 10, 20);
+        list_std.insert(list_std.end(), 10, 20);
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
-    //    list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
-    //    list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
+        list_task.erase(list_task.cbegin(), std::next(list_task.cbegin(), 5));
+        list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
 
-    //    list_task.erase(std::prev(list_task.end(), 5), list_task.end());
-    //    list_std.erase(std::prev(list_std.end(), 5), list_std.end());
+        list_task.erase(std::prev(list_task.cend(), 5), list_task.cend());
+        list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
-    //}
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
+    }
 
 
-    //{
-    //    task::list<size_t> list;
-    //    RandomFill(list, RandomUInt(1000, 5000));
-    //    list.sort();
-    //    ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
+    {
+        task::list<size_t> list;
+        RandomFill(list, RandomUInt(1000, 5000));
+        list.sort();
+        ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
 
-    //    task::list<size_t> list2 = list;
-    //    ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
+        task::list<size_t> list2 = list;
+        ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
 
-    //    list2.resize(0);
-    //    for (auto it = list.crbegin(); it != list.crend(); ++it) {
-    //        list2.push_back(*it);
-    //    }
-    //    list.reverse();
-    //    ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
+        list2.resize(0);
+        for (auto it = list.crbegin(); it != list.crend(); ++it) {
+            list2.push_back(*it);
+        }
+        list.reverse();
+        ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
 
-    //    std::reverse(list.begin(), list.end());
-    //    list2.reverse();
+        std::reverse(list.begin(), list.end());
+        list2.reverse();
 
-    //    ASSERT_EQUAL_MSG(list, list2, "std::reverse")
-    //    ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
+        ASSERT_EQUAL_MSG(list, list2, "std::reverse")
+        ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
 
-    //    task::list<size_t> list3(10);
-    //    list = list2 = list3;
-    //    ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
-    //}
+        task::list<size_t> list3(10);
+        list = list2 = list3;
+        ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
+    }
 
 
     //{
