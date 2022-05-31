@@ -235,12 +235,10 @@ class list {
         // TODO(): rewrite without iterator dereference
         // Temp implementation
         // Bubble sort
-        for (iterator it1 = begin(); it1 != std::prev(end()); ++it1) {
-            for (iterator it2 = it1; it2 != std::prev(end(), std::distance(begin(), it1) - 1); ++it2) {
+        for (iterator it1 = begin(); it1 != end(); ++it1) {
+            for (iterator it2 = begin(); it2 != std::prev(end()); ++it2) {
                 if (*it2 > *std::next(it2)) {
-                    T temp = *it2;
-                    *it2 = *std::next(it2);
-                    *std::next(it2) = temp;
+                    std::iter_swap(it2, std::next(it2));
                 }
             }
         }

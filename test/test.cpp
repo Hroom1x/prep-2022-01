@@ -121,22 +121,22 @@ int main() {
         list.sort();
         ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
 
-        //task::list<size_t> list2 = list;
-        //ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
-//
+        task::list<size_t> list2 = list;
+        ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
+
         //list2.resize(0);
         //for (auto it = list.crbegin(); it != list.crend(); ++it) {
         //    list2.push_back(*it);
         //}
         //list.reverse();
         //ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
-//
+
         //std::reverse(list.begin(), list.end());
         //list2.reverse();
-//
+
         //ASSERT_EQUAL_MSG(list, list2, "std::reverse")
         //ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
-//
+
         //task::list<size_t> list3(10);
         //list = list2 = list3;
         //ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
