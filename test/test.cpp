@@ -63,6 +63,7 @@ int main() {
         ASSERT_TRUE(list.empty())
     }
 
+
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -134,146 +135,147 @@ int main() {
     }
 
 
-    //{
-    //    task::list<size_t> list_task;
-    //    std::list<size_t> list_std;
+    {
+        task::list<size_t> list_task;
+        std::list<size_t> list_std;
 
-    //    RandomFill(list_std, RandomUInt(1000, 5000), 100);
+        RandomFill(list_std, RandomUInt(1000, 5000), 100);
 
-    //    list_task.resize(list_std.size());
-    //    std::copy(list_std.begin(), list_std.end(), list_task.begin());
+        list_task.resize(list_std.size());
+        std::copy(list_std.begin(), list_std.end(), list_task.begin());
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "std::copy")
+        ASSERT_EQUAL_MSG(list_task, list_std, "std::copy")
 
-    //    list_task.sort();
-    //    list_std.sort();
+        list_task.sort();
+        list_std.sort();
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "list::sort")
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::sort")
 
-    //    list_task.unique();
-    //    list_std.unique();
+        list_task.unique();
+        list_std.unique();
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "list::unique")
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::unique")
 
-    //    task::list<size_t> list_task2;
-    //    std::list<size_t> list_std2;
+        task::list<size_t> list_task2;
+        std::list<size_t> list_std2;
 
-    //    RandomFill(list_std2, RandomUInt(100, 500), 100);
+        RandomFill(list_std2, RandomUInt(100, 500), 100);
 
-    //    list_task2.resize(list_std2.size());
-    //    std::copy(list_std2.begin(), list_std2.end(), list_task2.begin());
+        list_task2.resize(list_std2.size());
+        std::copy(list_std2.begin(), list_std2.end(), list_task2.begin());
 
-    //    {
-    //        auto list_task_temp = list_task2;
-    //        auto list_std_temp = list_std2;
+        {
+            auto list_task_temp = list_task2;
+            auto list_std_temp = list_std2;
 
-    //        auto& element_reference = list_task2.front();
+            auto& element_reference = list_task2.front();
 
-    //        auto task_it = list_task.begin();
-    //        auto std_it = list_std.begin();
-    //        list_task.splice(++task_it, list_task2);
-    //        list_std.splice(++std_it, list_std2);
+            auto task_it = list_task.cbegin();
+            auto std_it = list_std.begin();
+            list_task.splice(++task_it, list_task2);
+            list_std.splice(++std_it, list_std2);
 
-    //        element_reference = 101;
-    //        std_it = list_std.begin();
-    //        *++std_it = 101;
+            element_reference = 101;
+            std_it = list_std.begin();
+            *++std_it = 101;
 
-    //        ASSERT_EQUAL_MSG(list_task, list_std, "list::splice")
+            ASSERT_EQUAL_MSG(list_task, list_std, "list::splice")
 
-    //        list_task2 = list_task_temp;
-    //        list_std2 = list_std_temp;
-    //        list_task_temp.clear();
-    //        list_std_temp.clear();
+            list_task2 = list_task_temp;
+            list_std2 = list_std_temp;
+            list_task_temp.clear();
+            list_std_temp.clear();
 
-    //        ASSERT_EQUAL_MSG(list_task2, list_std2, "operator=")
-    //    }
+            ASSERT_EQUAL_MSG(list_task2, list_std2, "operator=")
+        }
 
-    //    list_task.remove(list_task.front());
-    //    list_std.remove(list_std.front());
+        list_task.remove(list_task.front());
+        list_std.remove(list_std.front());
 
-    //    ASSERT_EQUAL_MSG(list_task, list_std, "list::remove")
+        ASSERT_EQUAL_MSG(list_task, list_std, "list::remove")
 
-    //    list_task.sort();
-    //    list_std.sort();
-    //    list_task2.sort();
-    //    list_std2.sort();
+        list_task.sort();
+        list_std.sort();
+        list_task2.sort();
+        list_std2.sort();
 
-    //    list_task.swap(list_task2);
-    //    list_std.swap(list_std2);
+        list_task.swap(list_task2);
+        list_std.swap(list_std2);
 
-    //    ASSERT_EQUAL_MSG(list_task2, list_std2, "list::swap")
+        ASSERT_EQUAL_MSG(list_task2, list_std2, "list::swap")
 
-    //    {
-    //        auto &element_reference = list_task2.front();
+        {
+            auto &element_reference = list_task2.front();
 
-    //        list_task.merge(list_task2);
-    //        list_std.merge(list_std2);
+            list_task.merge(list_task2);
+            list_std.merge(list_std2);
 
-    //        ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
-    //        ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
+            ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
+            ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
 
-    //        element_reference = 1000;
+            element_reference = 1000;
 
-    //        ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
-    //    }
-    //}
+            ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
+        }
+    }
+/*
+    {
+        const size_t LIST_COUNT = 5;
+        const size_t ITER_COUNT = 4000;
+        const size_t MAX_SIZE = 1000;
 
-    //{
-    //    const size_t LIST_COUNT = 5;
-    //    const size_t ITER_COUNT = 4000;
-    //    const size_t MAX_SIZE = 1000;
+        std::vector<task::list<size_t>> lists_task(LIST_COUNT);
+        std::vector<std::list<size_t>> lists_std(LIST_COUNT);
 
-    //    std::vector<task::list<size_t>> lists_task(LIST_COUNT);
-    //    std::vector<std::list<size_t>> lists_std(LIST_COUNT);
+        for (size_t iter = 0; iter < ITER_COUNT; ++iter) {
+            for (size_t list = 0; list < LIST_COUNT; ++list) {
+                if (TossCoin()) {
+                    // Random Push
+                    size_t count = RandomUInt(0, MAX_SIZE - lists_task[list].size());
+                    for (; count; --count) {
+                        auto val = RandomUInt();
+                        if (TossCoin()) {
+                            lists_task[list].push_back(val);
+                            lists_std[list].push_back(val);
+                        } else {
+                            lists_task[list].push_front(val);
+                            lists_std[list].push_front(val);
+                        }
+                    }
+                } else {
+                    // Random Pop
+                    size_t count = RandomUInt(0, lists_task[list].size());
+                    for (; count; --count) {
+                        if (TossCoin()) {
+                            lists_task[list].pop_back();
+                            lists_std[list].pop_back();
+                        } else {
+                            lists_task[list].pop_front();
+                            lists_std[list].pop_front();
+                        }
+                    }
+                }
 
-    //    for (size_t iter = 0; iter < ITER_COUNT; ++iter) {
-    //        for (size_t list = 0; list < LIST_COUNT; ++list) {
-    //            if (TossCoin()) {
-    //                // Random Push
-    //                size_t count = RandomUInt(0, MAX_SIZE - lists_task[list].size());
-    //                for (; count; --count) {
-    //                    auto val = RandomUInt();
-    //                    if (TossCoin()) {
-    //                        lists_task[list].push_back(val);
-    //                        lists_std[list].push_back(val);
-    //                    } else {
-    //                        lists_task[list].push_front(val);
-    //                        lists_std[list].push_front(val);
-    //                    }
-    //                }
-    //            } else {
-    //                // Random Pop
-    //                size_t count = RandomUInt(0, lists_task[list].size());
-    //                for (; count; --count) {
-    //                    if (TossCoin()) {
-    //                        lists_task[list].pop_back();
-    //                        lists_std[list].pop_back();
-    //                    } else {
-    //                        lists_task[list].pop_front();
-    //                        lists_std[list].pop_front();
-    //                    }
-    //                }
-    //            }
+                switch (RandomUInt(4)) {
+                    case 0:
+                        if (!lists_std[list].empty()) {
+                            lists_task[list].remove(lists_task[list].back());
+                            lists_std[list].remove(lists_std[list].back());
+                        }
+                        break;
+                    case 1:
+                        lists_task[list].reverse();
+                        lists_std[list].reverse();
+                        break;
+                    case 2:
+                        lists_task[list].sort();
+                        lists_std[list].sort();
+                        break;
+                }
 
-    //            switch (RandomUInt(4)) {
-    //                case 0:
-    //                    if (!lists_std[list].empty()) {
-    //                        lists_task[list].remove(lists_task[list].back());
-    //                        lists_std[list].remove(lists_std[list].back());
-    //                    }
-    //                    break;
-    //                case 1:
-    //                    lists_task[list].reverse();
-    //                    lists_std[list].reverse();
-    //                    break;
-    //                case 2:
-    //                    lists_task[list].sort();
-    //                    lists_std[list].sort();
-    //                    break;
-    //            }
-
-    //            ASSERT_EQUAL_MSG(lists_task[list], lists_std[list], "Stress test")
-    //        }
-    //    }
-    //}
+                ASSERT_EQUAL_MSG(lists_task[list], lists_std[list], "Stress test")
+            }
+        }
+    }
+*/
 }
