@@ -301,7 +301,14 @@ class list {
 
     template<class T>
     void list<T>::remove(const T &value) {
-        //
+        size_t count = 0;
+        for (iterator it = std::prev(end()); it != std::prev(begin()); --it) {
+            if (*it == value) {
+                std::move(std::next(it), end(), it);
+                count++;
+            }
+        }
+        resize(size() - count);
     }
 
     template<class T>
