@@ -235,9 +235,11 @@ class list {
 
     template<class T>
     void list<T>::sort() {
+        iterator _first = begin();
+        iterator _last = end();
         // Bubble sort
-        for (iterator it1 = begin(); it1 != end(); ++it1) {
-            for (iterator it2 = begin(); it2 != std::prev(end()); ++it2) {
+        for (iterator it1 = _first; it1 != _last; ++it1) {
+            for (iterator it2 = _first; it2 != std::prev(_last); ++it2) {
                 if (*it2 > *std::next(it2)) {
                     std::iter_swap(it2, std::next(it2));
                 }
@@ -277,7 +279,8 @@ class list {
 
     template<class T>
     void list<T>::unique() {
-        //
+        std::cout << std::is_sorted(begin(), end());
+        std::unique(begin(), end());
     }
 
     template<class T>
