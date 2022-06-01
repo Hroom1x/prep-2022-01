@@ -57,15 +57,6 @@ int main() {
         list.push_back(42);
         ASSERT_TRUE(list.size() == 1)
         list.push_back(2);
-        /*
-        {
-            std::cout << std::endl << "begin";
-            for (auto it = list.begin(); it != list.end(); it++) {
-                std::cout << " " << *it << " ";
-            }
-            std::cout << "end" << std::endl;
-        }
-        */
         list.pop_front();
         ASSERT_TRUE(list.front() == 2)
         list.pop_back();
@@ -124,22 +115,22 @@ int main() {
         task::list<size_t> list2 = list;
         ASSERT_EQUAL_MSG(list, list2, "Copy constructor")
 
-        //list2.resize(0);
-        //for (auto it = list.crbegin(); it != list.crend(); ++it) {
-        //    list2.push_back(*it);
-        //}
-        //list.reverse();
-        //ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
+        list2.resize(0);
+        for (auto it = list.crbegin(); it != list.crend(); ++it) {
+            list2.push_back(*it);
+        }
+        list.reverse();
+        ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
 
-        //std::reverse(list.begin(), list.end());
-        //list2.reverse();
+        std::reverse(list.begin(), list.end());
+        list2.reverse();
 
-        //ASSERT_EQUAL_MSG(list, list2, "std::reverse")
-        //ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
+        ASSERT_EQUAL_MSG(list, list2, "std::reverse")
+        ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
 
-        //task::list<size_t> list3(10);
-        //list = list2 = list3;
-        //ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
+        task::list<size_t> list3(10);
+        list = list2 = list3;
+        ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
     }
 
 

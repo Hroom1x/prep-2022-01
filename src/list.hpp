@@ -200,7 +200,11 @@ class list {
     template<class T>
     void list<T>::resize(size_t count) {
         T* temp = new T[count];
-        std::copy(begin(), end(), iterator(temp));
+        if (count >= _size) {
+            std::copy(begin(), end(), iterator(temp));
+        } else {
+            std::copy_n(begin(), count, iterator(temp));
+        }
         _size = count;
         delete []m_data;
         m_data = temp;
@@ -232,8 +236,6 @@ class list {
 
     template<class T>
     void list<T>::sort() {
-        // TODO(): rewrite without iterator dereference
-        // Temp implementation
         // Bubble sort
         for (iterator it1 = begin(); it1 != end(); ++it1) {
             for (iterator it2 = begin(); it2 != std::prev(end()); ++it2) {
@@ -246,7 +248,7 @@ class list {
 
     template<class T>
     void list<T>::reverse() {
-        //
+        std::reverse(begin(), end());
     }
 
     template<class T>
@@ -267,7 +269,7 @@ class list {
             _size = other._size;
             m_data = new T[_size];
 
-            std::copy_n(other.m_data, _size, m_data);
+            std::copy(other.begin(), other.end(), iterator(m_data));
         }
         return *this;
     }
