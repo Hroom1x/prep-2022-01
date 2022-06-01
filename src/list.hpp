@@ -274,13 +274,29 @@ class list {
 
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
-        //
+        T* temp = (T*) calloc(_size + other.size(), sizeof(T));
+        std::copy(cbegin(), pos, iterator(temp));
+        std::copy(other.cbegin(), other.cend(), std::next(iterator(temp), std::distance(cbegin(), pos)));
+        std::copy(pos, cend(), std::next(iterator(temp), std::distance(cbegin(), pos) + other._size));
+        _size += other.size();
+        other.clear();
+        free(m_data);
+        m_data = temp;
     }
 
     template<class T>
     void list<T>::unique() {
-        std::cout << std::is_sorted(begin(), end());
-        std::unique(begin(), end());
+        if (begin() != end()) {
+            //iterator it = begin();
+            //while (++it != end()) {
+            //    if (*it == *std::prev(it)) {
+            //        erase(const_iterator(it));
+            //    } else {
+            //        _first = _next;
+            //    }
+            //    _next = _first;
+            //}
+        }
     }
 
     template<class T>

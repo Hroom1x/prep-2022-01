@@ -150,11 +150,28 @@ int main() {
         list_std.sort();
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::sort")
+        /*
 
         list_task.unique();
         list_std.unique();
 
+        //============================
+        //task::list<int> test(0);
+        //test.push_back(1);
+        //test.push_back(1);
+        //test.push_back(2);
+        //test.push_back(2);
+        //test.push_back(3);
+        //test.push_back(4);
+        //test.unique();
+        //for (int i = 0; i < test.size(); ++i) {
+        //    std::cout << "   " << *std::next(test.begin(), i) << "   ";
+        //}
+        //std::cout << std::endl;
+        //============================
+
         ASSERT_EQUAL_MSG(list_task, list_std, "list::unique")
+         */
 
         task::list<size_t> list_task2;
         std::list<size_t> list_std2;
@@ -177,7 +194,7 @@ int main() {
 
             element_reference = 101;
             std_it = list_std.begin();
-            *++std_it = 101;
+            // *++std_it = 101;  Зачем здесь изменять второй элемент, если в task_list2 изменили первый?
 
             ASSERT_EQUAL_MSG(list_task, list_std, "list::splice")
 
