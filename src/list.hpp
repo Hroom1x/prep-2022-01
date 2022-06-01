@@ -302,7 +302,7 @@ class list {
     template<class T>
     void list<T>::remove(const T &value) {
         size_t count = 0;
-        for (iterator it = std::prev(end()); it != std::prev(begin()); --it) {
+        for (iterator it = --end(); it != --begin(); --it) {
             if (*it == value) {
                 std::move(std::next(it), end(), it);
                 count++;
@@ -318,7 +318,13 @@ class list {
 
     template<class T>
     void list<T>::swap(list &other) {
-        //
+        size_t temp_size = other.size();
+        other._size = size();
+        _size = temp_size;
+
+        T* temp_ptr = m_data;
+        m_data = other.m_data;
+        other.m_data = temp_ptr;
     }
 
 
