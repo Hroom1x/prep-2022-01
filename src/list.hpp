@@ -67,7 +67,7 @@ class list {
     list();
     list(size_t count, const T& value);
     explicit list(size_t count);
-    ~list() { free(m_data); }
+    ~list() { delete[] m_data; }
 
     list(const list& other);
     list& operator=(const list& other);
@@ -130,30 +130,32 @@ class list {
 
     template<class T>
     list<T>::list() {
-        m_data = (T*) calloc(0, sizeof(T));
+        m_data = new T[0];
         _size = 0;
     }
 
     template<class T>
     list<T>::list(size_t count, const T &value) : _size(count) {
-        m_data = (T*) calloc(count, sizeof(T));
-        std::fill(begin(), end(), value);
+        m_data = new T[count];
+        std::fill_n(begin(), count, value);
     }
 
     template<class T>
     list<T>::list(size_t count) : _size(count) {
-        m_data = (T*) calloc(count, sizeof(T));
+        m_data = new T[count];
+        std::uninitialized_default_construct_n(begin(), count);
     }
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
-        T* temp = (T*) calloc(_size + 1, sizeof(T));
+        T* temp = new T[size() + 1];
         std::copy(cbegin(), pos, iterator(temp));
         iterator new_pos = iterator(temp + std::distance(cbegin(), pos));
         *new_pos = value;
+        //std::fill_n(new_pos, 1, value);
         std::copy(pos, cend(), std::next(new_pos, 1));
         ++_size;
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
         return iterator(m_data);
     }
@@ -170,11 +172,11 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::erase(const_iterator pos) {
-        T* temp = (T*) calloc(_size - 1, sizeof(T));
+        T* temp = new T[size() - 1];
         std::copy(cbegin(), pos, iterator(temp));
         std::copy(std::next(pos), cend(), iterator(temp + std::distance(cbegin(), pos)));
         --_size;
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
         return end();
     }
@@ -191,44 +193,44 @@ class list {
 
     template<class T>
     void list<T>::clear() {
-        free(m_data);
-        m_data = (T*) calloc(0, sizeof(T));
+        delete[] m_data;
+        m_data = new T[0];
         _size = 0;
     }
 
     template<class T>
     void list<T>::resize(size_t count) {
-        T* temp = (T*) calloc(count, sizeof(T));
+        T* temp = new T[count];
         if (count >= _size) {
             std::copy(begin(), end(), iterator(temp));
         } else {
             std::copy_n(begin(), count, iterator(temp));
         }
         _size = count;
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
     }
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, size_t count, const T &value) {
-        T* temp = (T*) calloc(_size + count, sizeof(T));
+        T* temp = new T[size() + count];
         std::copy(cbegin(), pos, iterator(temp));
         iterator new_pos = iterator(temp + std::distance(cbegin(), pos));
         std::fill(new_pos, std::next(new_pos, count), value);
         std::copy(pos, cend(), std::next(new_pos, count));
         _size += count;
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
         return iterator(m_data);
     }
 
     template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator first, list::const_iterator last) {
-        T* temp = (T*) calloc(_size - std::distance(first, last), sizeof(T));
+        T* temp = new T[size() - std::distance(first, last)];
         std::copy(cbegin(), first, iterator(temp));
         std::copy(last, cend(), iterator(temp + std::distance(cbegin(), first)));
         _size -= std::distance(first, last);
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
         return end();
     }
@@ -256,8 +258,8 @@ class list {
     list<T>::list(const list &other) {
         if (&other != this) {
             _size = other._size;
-            m_data = (T*) calloc(_size, sizeof(T));
-            std::copy_n(other.m_data, _size, m_data);
+            m_data = new T[size()];
+            std::copy_n(other.m_data, size(), m_data);
         }
     }
 
@@ -272,34 +274,22 @@ class list {
 
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
-        T* temp = (T*) calloc(_size + other.size(), sizeof(T));
+        T* temp = new T[size() + other.size()];
         std::copy(cbegin(), pos, iterator(temp));
         std::copy(other.cbegin(), other.cend(), std::next(iterator(temp), std::distance(cbegin(), pos)));
         std::copy(pos, cend(), std::next(iterator(temp), std::distance(cbegin(), pos) + other._size));
         _size += other.size();
         other.clear();
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
     }
 
     template<class T>
     void list<T>::unique() {
-        // TODO(ME):  rewrite with reverse_iterator
-        size_t count = 0;
-        if (begin() != end()) {
-            iterator _first = begin();
-            iterator _next = begin();
-            while (++_next != std::prev(end(), count)) {
-                if (*_next == *_first) {
-                    std::move(_next, end(), _first);
-                    _next = _first;
-                    ++count;
-                } else {
-                    _first = _next;
-                }
-            }
-        }
-        resize(size() - count);
+        iterator new_end = std::unique(begin(), end());
+        // resize(std::distance(begin(), new_end));
+        std::destroy(new_end, end());
+        _size = std::distance(begin(), new_end);
     }
 
     template<class T>
@@ -316,9 +306,9 @@ class list {
 
     template<class T>
     void list<T>::merge(list &other) {
-        T* temp = (T*) calloc(size() + other.size(), sizeof(T));
+        T* temp = new T[size() + other.size()];
         std::merge(begin(), end(), other.begin(), other.end(), temp);
-        free(m_data);
+        delete[] m_data;
         m_data = temp;
         _size += other.size();
         other.clear();
