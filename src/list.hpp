@@ -16,22 +16,38 @@ class list {
         using reference = T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        explicit iterator(pointer ptr) : node(ptr) { };
-        iterator(const iterator& other) : node(other.node) { };
-        iterator& operator=(const iterator& other) { node = other.node; return *this; }
+        iterator() = default;
+        iterator(const iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
+        iterator& operator=(const iterator& other) { if (this != &other) this(other); return *this; }
 
-        virtual iterator& operator++() { node++; return *this; }
+        virtual iterator& operator++() { this = _next; return *this; }
         virtual iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-        virtual reference operator*() const { return *node; }
-        virtual pointer operator->() const { return node; }
-        virtual iterator& operator--() { node--; return *this; }
+        virtual reference operator*() const { return *_node; }
+        virtual pointer operator->() const { return _node; }
+        virtual iterator& operator--() { this = _prev; return *this; }
         virtual iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
 
-        virtual bool operator==(iterator other) const { return this->node == other.node; }
-        virtual bool operator!=(iterator other) const { return this->node != other.node; }
+        bool operator==(iterator other) const { return this->_node == other._node; }
+        bool operator!=(iterator other) const { return this->_node != other._node; }
+
+        // iterator() { };
+        // iterator(const iterator& other) : node(other.node) { };
+        // iterator& operator=(const iterator& other) { node = other.node; return *this; }
+
+        // virtual iterator& operator++() { node++; return *this; }
+        // virtual iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
+        // virtual reference operator*() const { return *node; }
+        // virtual pointer operator->() const { return node; }
+        // virtual iterator& operator--() { node--; return *this; }
+        // virtual iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
+
+        // virtual bool operator==(iterator other) const { return this->node == other.node; }
+        // virtual bool operator!=(iterator other) const { return this->node != other.node; }
 
      private:
-        pointer node;
+        pointer _node;
+        iterator _next;
+        iterator _prev;
     };
 
     class const_iterator {
@@ -124,9 +140,21 @@ class list {
  private:
 
     size_t _size;
-    T* m_data;
+    iterator _first;
 
 };
+
+    //template<class T>
+    //list<T>::iterator::iterator(const list::iterator &other) :
+    //_node(other._node), _next(other._next), _prev(other._prev) { }
+
+    //template<class T>
+    //class list<T>::iterator &list<T>::iterator::operator=(const list::iterator &other) {
+    //    if (this != &other) {
+    //        this(other);
+    //    }
+    //    return *this;
+    //}
 
     template<class T>
     list<T>::list() {
