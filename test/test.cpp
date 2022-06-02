@@ -223,19 +223,26 @@ int main() {
 
         {
             auto &element_reference = list_task2.front();
+            std::cout<<"test: "<<list_task2.front()<<std::endl;
 
             list_task.merge(list_task2);
             list_std.merge(list_std2);
+            // std::cout<<"task2: "<<list_task2.size()<<"  std2: "<<list_std2.size()<<std::endl;
 
             ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
             ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
 
+            std::cout<<"wtf1: "<<*list_task.end()<<std::endl;
             element_reference = 1000;
+            std::cout<<"wtf2: "<<*list_task.end()<<std::endl;
+            for (auto it = list_task.begin(); it != list_task.end(); ++it) {
+                std::cout<<"f: "<<*it<<std::endl;
+            }
 
             ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }
     }
-/*
+
     {
         const size_t LIST_COUNT = 5;
         const size_t ITER_COUNT = 4000;
@@ -294,5 +301,5 @@ int main() {
             }
         }
     }
-*/
+
 }

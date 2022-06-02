@@ -264,10 +264,13 @@ class list {
     template<class T>
     class list<T>& list<T>::operator=(const list &other)  {
         if (&other != this) {
-            free(m_data);
-            _size = other._size;
-            m_data = (T*) calloc(_size, sizeof(T));
-            std::copy(other.begin(), other.end(), iterator(m_data));
+            list<T> temp(other);
+            this->swap(temp);
+            return *this;
+            //free(m_data);
+            //_size = other._size;
+            //m_data = (T*) calloc(_size, sizeof(T));
+            //std::copy(other.begin(), other.end(), iterator(m_data));
         }
         return *this;
     }
@@ -313,7 +316,12 @@ class list {
 
     template<class T>
     void list<T>::merge(list &other) {
-        //
+        T* temp = (T*) calloc(size() + other.size(), sizeof(T));
+        std::merge(begin(), end(), other.begin(), other.end(), temp);
+        free(m_data);
+        m_data = temp;
+        _size += other.size();
+        other.clear();
     }
 
     template<class T>
