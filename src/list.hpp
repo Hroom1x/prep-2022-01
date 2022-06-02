@@ -17,8 +17,8 @@ class list {
         using iterator_category = std::bidirectional_iterator_tag;
 
         explicit iterator(pointer ptr) : node(ptr) { };
-        iterator(const iterator& it) : node(it.node) { };
-        iterator& operator=(const iterator& it) { node = it.node; return *this; }
+        iterator(const iterator& other) : node(other.node) { };
+        iterator& operator=(const iterator& other) { node = other.node; return *this; }
 
         virtual iterator& operator++() { node++; return *this; }
         virtual iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
@@ -43,9 +43,9 @@ class list {
         using iterator_category = std::bidirectional_iterator_tag;
 
         explicit const_iterator(pointer ptr) : node(ptr) { };
-        explicit const_iterator(const iterator& it) : node(it.operator->()) { };
-        const_iterator(const const_iterator& it) : node(it.operator->()) { };
-        const_iterator& operator=(const const_iterator& it) { node = it.node; return *this; }
+        explicit const_iterator(const iterator& other) : node(other.operator->()) { };
+        const_iterator(const const_iterator& other) : node(other.operator->()) { };
+        const_iterator& operator=(const const_iterator& other) { node = other.node; return *this; }
 
         const_iterator& operator++() { node++; return *this; }
         const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
@@ -266,11 +266,6 @@ class list {
         if (&other != this) {
             list<T> temp(other);
             this->swap(temp);
-            return *this;
-            //free(m_data);
-            //_size = other._size;
-            //m_data = (T*) calloc(_size, sizeof(T));
-            //std::copy(other.begin(), other.end(), iterator(m_data));
         }
         return *this;
     }
@@ -289,17 +284,22 @@ class list {
 
     template<class T>
     void list<T>::unique() {
+        // TODO(ME):  rewrite with reverse_iterator
+        size_t count = 0;
         if (begin() != end()) {
-            //iterator it = begin();
-            //while (++it != end()) {
-            //    if (*it == *std::prev(it)) {
-            //        erase(const_iterator(it));
-            //    } else {
-            //        _first = _next;
-            //    }
-            //    _next = _first;
-            //}
+            iterator _first = begin();
+            iterator _next = begin();
+            while (++_next != std::prev(end(), count)) {
+                if (*_next == *_first) {
+                    std::move(_next, end(), _first);
+                    _next = _first;
+                    ++count;
+                } else {
+                    _first = _next;
+                }
+            }
         }
+        resize(size() - count);
     }
 
     template<class T>
