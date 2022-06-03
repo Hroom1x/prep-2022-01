@@ -20,29 +20,15 @@ class list {
         iterator(const iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
         iterator& operator=(const iterator& other) { if (this != &other) this(other); return *this; }
 
-        virtual iterator& operator++() { this = _next; return *this; }
-        virtual iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-        virtual reference operator*() const { return *_node; }
-        virtual pointer operator->() const { return _node; }
-        virtual iterator& operator--() { this = _prev; return *this; }
-        virtual iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
+        iterator& operator++() { this = _next; return *this; }
+        iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
+        reference operator*() const { return *_node; }
+        pointer operator->() const { return _node; }
+        iterator& operator--() { this = _prev; return *this; }
+        iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
 
         bool operator==(iterator other) const { return this->_node == other._node; }
         bool operator!=(iterator other) const { return this->_node != other._node; }
-
-        // iterator() { };
-        // iterator(const iterator& other) : node(other.node) { };
-        // iterator& operator=(const iterator& other) { node = other.node; return *this; }
-
-        // virtual iterator& operator++() { node++; return *this; }
-        // virtual iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-        // virtual reference operator*() const { return *node; }
-        // virtual pointer operator->() const { return node; }
-        // virtual iterator& operator--() { node--; return *this; }
-        // virtual iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
-
-        // virtual bool operator==(iterator other) const { return this->node == other.node; }
-        // virtual bool operator!=(iterator other) const { return this->node != other.node; }
 
      private:
         pointer _node;
@@ -58,22 +44,25 @@ class list {
         using reference = const T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        explicit const_iterator(pointer ptr) : node(ptr) { };
-        explicit const_iterator(const iterator& other) : node(other.operator->()) { };
-        const_iterator(const const_iterator& other) : node(other.operator->()) { };
-        const_iterator& operator=(const const_iterator& other) { node = other.node; return *this; }
+        const_iterator() = default;
+        explicit const_iterator(const iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
+        const_iterator(const const_iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
+        const_iterator& operator=(const const_iterator& other) { if (this != &other) this(other); return *this; }
 
-        const_iterator& operator++() { node++; return *this; }
+        const_iterator& operator++() { this = _next; return *this; }
         const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
-        reference operator*() const { return *node; }
-        pointer operator->() const { return node; }
-        const_iterator& operator--() { node--; return *this; }
+        reference operator*() const { return *_node; }
+        pointer operator->() const { return _node; }
+        const_iterator& operator--() { this = _prev; return *this; }
         const_iterator operator--(int) { const_iterator tmp = *this; --(*this); return tmp; }
 
-        bool operator==(const_iterator other) const { return this->node == other.node; }
-        bool operator!=(const_iterator other) const { return this->node != other.node; }
+        bool operator==(const_iterator other) const { return this->_node == other._node; }
+        bool operator!=(const_iterator other) const { return this->_node != other._node; }
+
      private:
-        pointer node;
+        pointer _node;
+        iterator _next;
+        iterator _prev;
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
@@ -83,7 +72,7 @@ class list {
     list();
     list(size_t count, const T& value);
     explicit list(size_t count);
-    ~list() { delete[] m_data; }
+    ~list();
 
     list(const list& other);
     list& operator=(const list& other);
@@ -95,8 +84,8 @@ class list {
     const T& back() const { return *std::prev(cend()); }
 
 
-    iterator begin() const { return iterator(m_data); }
-    iterator end() const { return iterator(m_data + _size); }
+    iterator begin() const { return _first; }
+    iterator end() const { return std::next(_first, _size); }
 
     const_iterator cbegin() const { return const_iterator(begin()); }
     const_iterator cend() const { return const_iterator(end()); }
@@ -141,24 +130,12 @@ class list {
 
     size_t _size;
     iterator _first;
+    iterator _last;
 
 };
 
-    //template<class T>
-    //list<T>::iterator::iterator(const list::iterator &other) :
-    //_node(other._node), _next(other._next), _prev(other._prev) { }
-
-    //template<class T>
-    //class list<T>::iterator &list<T>::iterator::operator=(const list::iterator &other) {
-    //    if (this != &other) {
-    //        this(other);
-    //    }
-    //    return *this;
-    //}
-
     template<class T>
     list<T>::list() {
-        m_data = new T[0];
         _size = 0;
     }
 
@@ -174,6 +151,29 @@ class list {
         std::uninitialized_default_construct_n(begin(), count);
     }
 
+    template<class T>
+    list<T>::list(const list &other) {
+        if (&other != this) {
+            _size = other._size;
+            m_data = new T[size()];
+            std::copy_n(other.m_data, size(), m_data);
+        }
+    }
+
+    template<class T>
+    class list<T>& list<T>::operator=(const list &other)  {
+        if (&other != this) {
+            list<T> temp(other);
+            this->swap(temp);
+        }
+        return *this;
+    }
+
+    template<class T>
+    list<T>::~list() {
+        //
+    }
+/*
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
         T* temp = new T[size() + 1];
@@ -262,44 +262,28 @@ class list {
         m_data = temp;
         return end();
     }
+*/
+    //template<class T>
+    //void list<T>::sort() {
+    //    iterator _first = begin();
+    //    iterator _last = end();
+    //    // Bubble sort
+    //    for (iterator it1 = _first; it1 != _last; ++it1) {
+    //        for (iterator it2 = _first; it2 != std::prev(_last); ++it2) {
+    //            if (*it2 > *std::next(it2)) {
+    //                std::iter_swap(it2, std::next(it2));
+    //            }
+    //        }
+    //    }
+    //}
 
-    template<class T>
-    void list<T>::sort() {
-        iterator _first = begin();
-        iterator _last = end();
-        // Bubble sort
-        for (iterator it1 = _first; it1 != _last; ++it1) {
-            for (iterator it2 = _first; it2 != std::prev(_last); ++it2) {
-                if (*it2 > *std::next(it2)) {
-                    std::iter_swap(it2, std::next(it2));
-                }
-            }
-        }
-    }
+    //template<class T>
+    //void list<T>::reverse() {
+    //    std::reverse(begin(), end());
+    //}
 
-    template<class T>
-    void list<T>::reverse() {
-        std::reverse(begin(), end());
-    }
 
-    template<class T>
-    list<T>::list(const list &other) {
-        if (&other != this) {
-            _size = other._size;
-            m_data = new T[size()];
-            std::copy_n(other.m_data, size(), m_data);
-        }
-    }
-
-    template<class T>
-    class list<T>& list<T>::operator=(const list &other)  {
-        if (&other != this) {
-            list<T> temp(other);
-            this->swap(temp);
-        }
-        return *this;
-    }
-
+/*
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
         T* temp = new T[size() + other.size()];
@@ -352,6 +336,6 @@ class list {
         m_data = other.m_data;
         other.m_data = temp_ptr;
     }
-
+*/
 
 }  // namespace task

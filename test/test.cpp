@@ -63,7 +63,7 @@ int main() {
         ASSERT_TRUE(list.empty())
     }
 
-
+/*
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -78,14 +78,10 @@ int main() {
         ASSERT_TRUE(list.back() == "")
     }
 
-    {  // Не понимаю, почему не проходит этот блок. typeid выводит тип i
-        task::list<int> list(5);
-        // for (auto it = list.begin(); it != list.end(); ++it) {
-        //     std::cout<<" |  " << list.front();
-        // }
-        // std::cout<<std::endl<<typeid(list.front()).name()<<std::endl;
-        // ASSERT_TRUE(list.front() == int())
-        // ASSERT_TRUE(list.back() == int())
+    {
+        const task::list<int> list(5);
+        ASSERT_TRUE(list.front() == int())
+        ASSERT_TRUE(list.back() == int())
     }
 
     {
@@ -93,18 +89,18 @@ int main() {
         std::list<size_t> list_std(10, 30);
         ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
 
-        list_task.insert(list_task.cbegin(), 20);
+        list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
 
-        list_task.insert(list_task.cend(), 10, 20);
+        list_task.insert(list_task.end(), 10, 20);
         list_std.insert(list_std.end(), 10, 20);
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
-        list_task.erase(list_task.cbegin(), std::next(list_task.cbegin(), 5));
+        list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
         list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
 
-        list_task.erase(std::prev(list_task.cend(), 5), list_task.cend());
+        list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
@@ -158,21 +154,6 @@ int main() {
         list_task.unique();
         list_std.unique();
 
-        //============================
-        task::list<int> test(0);
-        test.push_back(1);
-        test.push_back(1);
-        test.push_back(2);
-        test.push_back(2);
-        test.push_back(3);
-        test.push_back(4);
-        test.unique();
-        for (size_t i = 0; i < test.size(); ++i) {
-            std::cout << " |  " << *std::next(test.begin(), i) << "   ";
-        }
-        std::cout << std::endl;
-        //============================
-
         ASSERT_EQUAL_MSG(list_task, list_std, "list::unique")
 
         task::list<size_t> list_task2;
@@ -189,14 +170,14 @@ int main() {
 
             auto& element_reference = list_task2.front();
 
-            auto task_it = list_task.cbegin();
+            auto task_it = list_task.begin();
             auto std_it = list_std.begin();
             list_task.splice(++task_it, list_task2);
             list_std.splice(++std_it, list_std2);
 
             element_reference = 101;
             std_it = list_std.begin();
-            // *++std_it = 101;  Зачем здесь изменять второй элемент, если в task_list2 изменили первый?
+            *++std_it = 101;
 
             ASSERT_EQUAL_MSG(list_task, list_std, "list::splice")
 
@@ -228,20 +209,16 @@ int main() {
 
             list_task.merge(list_task2);
             list_std.merge(list_std2);
-            // std::cout<<"task2: "<<list_task2.size()<<"  std2: "<<list_std2.size()<<std::endl;
 
             ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
             ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
 
             element_reference = 1000;
-            //for (auto it = list_task.begin(); it != std::next(list_task.end()); ++it) {
-            //    std::cout<<"f: "<<*it<<std::endl;
-            //}
 
-            //ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
+            ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }
     }
-/*
+
     {
         const size_t LIST_COUNT = 5;
         const size_t ITER_COUNT = 4000;
