@@ -48,25 +48,22 @@ class list {
         using reference = const T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        const_iterator() = default;
-        explicit const_iterator(const iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
-        const_iterator(const const_iterator& other) : _node(other._node), _next(other._next), _prev(other._prev) { };
-        const_iterator& operator=(const const_iterator& other) { if (this != &other) this(other); return *this; }
+        const_iterator() : _node() { }
+        const_iterator(const const_iterator& other) : _node(other._node) { }
+        const_iterator& operator=(const const_iterator& other) { if (this != other) _node = other._node; return *this; }
 
-        const_iterator& operator++() { this = *_next; return *this; }
-        const_iterator operator++(int) { const_iterator tmp = this; ++this; return tmp; }
-        reference operator*() const { return *_node; }
-        pointer operator->() const { return _node; }
-        const_iterator& operator--() { this = *_prev; return *this; }
-        const_iterator operator--(int) { const_iterator tmp = this; --this; return tmp; }
+        const_iterator& operator++() { _node = _node->_next; return *this; }
+        const_iterator operator++(int) { const_iterator temp = this; ++this; return temp; }
+        reference operator*() const { return _node->_value; }
+        pointer operator->() const { return &(_node->_value); }
+        const_iterator& operator--() { _node = _node->_prev; return *this; }
+        const_iterator operator--(int) { const_iterator temp = this; --this; return temp; }
 
         bool operator==(const_iterator other) const { return this->_node == other._node; }
         bool operator!=(const_iterator other) const { return !(this == other); }
 
      private:
-        pointer _node;
-        iterator* _next;
-        iterator* _prev;
+        node* _node;
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
