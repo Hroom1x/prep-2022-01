@@ -29,8 +29,8 @@ class list {
 
         iterator& operator++() { _node = _node->_next; return *this; }
         iterator operator++(int) { iterator temp = this; ++this; return temp; }
-        reference operator*() const { return _node->_value; }
-        pointer operator->() const { return &(_node->_value); }
+        reference operator*() const { return _node; }
+        pointer operator->() const { return &_node; }
         iterator& operator--() { _node = _node->_prev; return *this; }
         iterator operator--(int) { iterator temp = this; --this; return temp; }
 
@@ -58,8 +58,8 @@ class list {
 
         const_iterator& operator++() { _node = _node->_next; return *this; }
         const_iterator operator++(int) { const_iterator temp = this; ++this; return temp; }
-        reference operator*() const { return _node->_value; }
-        pointer operator->() const { return &(_node->_value); }
+        reference operator*() const { return _node; }
+        pointer operator->() const { return &_node; }
         const_iterator& operator--() { _node = _node->_prev; return *this; }
         const_iterator operator--(int) { const_iterator temp = this; --this; return temp; }
 
@@ -74,7 +74,7 @@ class list {
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-    list();
+    list() = default;
     list(size_t count, const T& value);
     explicit list(size_t count);
     ~list();
@@ -134,30 +134,22 @@ class list {
  private:
 
     size_t _size;
-    std::allocator<T> _alloc;
+    std::allocator<node> _alloc;
     iterator _first;
     iterator _last;
 
 };
 
     template<class T>
-    list<T>::list() {
-        _size = 0;
-        iterator temp;
-        _first = temp;
-        _last = temp;
-    }
-
-    template<class T>
     list<T>::list(size_t count) : list() {
-        if (count != 0) {
-            _size = count;
-            for (size_t i = 0; i < count; ++i) {
-                ++_last;
-                _last->
-            }
-        }
-        // std::uninitialized_default_construct_n(begin(), count);
+        for (; count; --count)
+            this->insert(end());
+        //_M_insert(iterator __position, _Args&&... __args)
+        //{
+        //    _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
+        //    __tmp->_M_hook(__position._M_node);
+        //    this->_M_inc_size(1);
+        //}
     }
 
     template<class T>
@@ -190,21 +182,21 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
+
+        node* temp = _alloc.allocate(1);
+        temp->_value = value;
+
+        // Получаем узел по константному итератору, чтобы связать его с новым узлом temp
+        node* pos_node = *pos._const_cast();
+
+        pos_node->_prev->_next = temp;  // Переставляем указатель _next предыдущего элемента на новый узел temp
+        temp->_prev = pos_node->_prev;  // Связываем новый узел с предыдущим от pos, т.е. _prev
+        pos_node->_prev = temp;         // Переставляем указатель _prev на новый элемент temp
+        temp->_next = pos_node;         // Связываем новый узел с узлом на pos
+
         ++_size;
-        auto* new_it = new iterator;
-        *new_it._next
-        std::prev(pos)._next = new_it;
-        pos._prev = new_it;
-        //T* temp = new T[size() + 1];
-        //std::copy(cbegin(), pos, iterator(temp));
-        //iterator new_pos = iterator(temp + std::distance(cbegin(), pos));
-        //*new_pos = value;
-        //std::fill_n(new_pos, 1, value);
-        //std::copy(pos, cend(), std::next(new_pos, 1));
-        //++_size;
-        //delete[] m_data;
-        //m_data = temp;
-        //return iterator(m_data);
+
+        return temp;
     }
 
     template<class T>
