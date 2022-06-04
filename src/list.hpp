@@ -23,6 +23,7 @@ class list {
         using iterator_category = std::bidirectional_iterator_tag;
 
         iterator() : _node() { }
+        explicit iterator(node& _x) : _node(_x) { }
         iterator(const iterator& other) : _node(other._node) { }
         iterator& operator=(const iterator& other) { if (this != other) _node = other._node; return *this; }
 
@@ -50,7 +51,10 @@ class list {
 
         const_iterator() : _node() { }
         const_iterator(const const_iterator& other) : _node(other._node) { }
+        explicit const_iterator(const iterator& other) : _node(other._node) {  }
         const_iterator& operator=(const const_iterator& other) { if (this != other) _node = other._node; return *this; }
+
+        iterator _const_cast() const { return iterator(const_cast<node*>(_node)); }
 
         const_iterator& operator++() { _node = _node->_next; return *this; }
         const_iterator operator++(int) { const_iterator temp = this; ++this; return temp; }
@@ -63,7 +67,7 @@ class list {
         bool operator!=(const_iterator other) const { return !(this == other); }
 
      private:
-        node* _node;
+        const node* _node;
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
