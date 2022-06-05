@@ -191,10 +191,10 @@ class list {
     }
 
     template<class T>
-    list<T>::list(const list &other) : _size(other._size) {
+    list<T>::list(const list &other) : list(other.size()) {
         if (&other != this) {
-            list temp(other._size);
-            std::copy_n(other.begin(), size(), temp);
+            list<T> temp(other.size());
+            std::copy_n(other.begin(), size(), temp.begin());
             this->swap(temp);
         }
     }
@@ -270,64 +270,26 @@ class list {
     void list<T>::pop_back() {
         erase(std::prev(cend()));
     }
+
+    template<class T>
+    void list<T>::sort() {
+        iterator first_it = begin();
+        iterator last_it = end();
+        // Bubble sort
+        for (iterator it1 = first_it; it1 != last_it; ++it1) {
+            for (iterator it2 = first_it; it2 != std::prev(last_it); ++it2) {
+                if (*it2 > *std::next(it2)) {
+                    std::iter_swap(it2, std::next(it2));
+                }
+            }
+        }
+    }
 /*
-
     template<class T>
-    class list<T>::iterator list<T>::erase(const_iterator pos) {
-        T* temp = new T[size() - 1];
-        std::copy(cbegin(), pos, iterator(temp));
-        std::copy(std::next(pos), cend(), iterator(temp + std::distance(cbegin(), pos)));
-        --_size;
-        delete[] m_data;
-        m_data = temp;
-        return end();
+    void list<T>::reverse() {
+        std::reverse(begin(), end());
     }
 
-    template<class T>
-    class list<T>::iterator list<T>::insert(list::const_iterator pos, size_t count, const T &value) {
-        T* temp = new T[size() + count];
-        std::copy(cbegin(), pos, iterator(temp));
-        iterator new_pos = iterator(temp + std::distance(cbegin(), pos));
-        std::fill(new_pos, std::next(new_pos, count), value);
-        std::copy(pos, cend(), std::next(new_pos, count));
-        _size += count;
-        delete[] m_data;
-        m_data = temp;
-        return iterator(m_data);
-    }
-
-    template<class T>
-    class list<T>::iterator list<T>::erase(list::const_iterator first, list::const_iterator last) {
-        T* temp = new T[size() - std::distance(first, last)];
-        std::copy(cbegin(), first, iterator(temp));
-        std::copy(last, cend(), iterator(temp + std::distance(cbegin(), first)));
-        _size -= std::distance(first, last);
-        delete[] m_data;
-        m_data = temp;
-        return end();
-    }
-*/
-    //template<class T>
-    //void list<T>::sort() {
-    //    iterator _first = begin();
-    //    iterator _last = end();
-    //    // Bubble sort
-    //    for (iterator it1 = _first; it1 != _last; ++it1) {
-    //        for (iterator it2 = _first; it2 != std::prev(_last); ++it2) {
-    //            if (*it2 > *std::next(it2)) {
-    //                std::iter_swap(it2, std::next(it2));
-    //            }
-    //        }
-    //    }
-    //}
-
-    //template<class T>
-    //void list<T>::reverse() {
-    //    std::reverse(begin(), end());
-    //}
-
-
-/*
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
         T* temp = new T[size() + other.size()];
@@ -376,9 +338,9 @@ class list {
         other._size = size();
         _size = temp_size;
 
-        iterator temp_it = begin();
-        begin() = other.begin();
-        other.begin() = begin();
+        node* temp = _first;
+        _first = other._first;
+        other._first = temp;
     }
 
     template<class T>

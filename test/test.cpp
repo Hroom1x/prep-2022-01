@@ -82,7 +82,7 @@ int main() {
         ASSERT_TRUE(list.front() == int())
         ASSERT_TRUE(list.back() == int())
     }
-*/
+
     {
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
@@ -104,7 +104,7 @@ int main() {
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
-/*
+*/
     {
         task::list<size_t> list;
         RandomFill(list, RandomUInt(1000, 5000));
@@ -118,11 +118,11 @@ int main() {
         for (auto it = list.crbegin(); it != list.crend(); ++it) {
             list2.push_back(*it);
         }
-        list.reverse();
+//        list.reverse();
         ASSERT_EQUAL_MSG(list, list2, "list::reverse / const reverse iterator")
 
         std::reverse(list.begin(), list.end());
-        list2.reverse();
+//        list2.reverse();
 
         ASSERT_EQUAL_MSG(list, list2, "std::reverse")
         ASSERT_TRUE(std::is_sorted(list.begin(), list.end()))
@@ -131,7 +131,7 @@ int main() {
         list = list2 = list3;
         ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
     }
-
+/*
 
     {
         task::list<size_t> list_task;
