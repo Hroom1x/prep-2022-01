@@ -21,6 +21,10 @@ class list {
             _prev = &other;
             other._next = this;
         }
+
+        ~node() {
+            delete _value;
+        }
     };
 
     class iterator {
@@ -100,8 +104,8 @@ class list {
     const T& back() const { return *std::prev(end()); }
 
 
-    iterator begin() const { return _first; }
-    iterator end() const { return _last; }
+    iterator begin() const { return iterator(*_first); }
+    iterator end() const { return iterator(*_first->_prev); }
 
     const_iterator cbegin() const { return const_iterator(begin()); }
     const_iterator cend() const { return const_iterator(end()); }
@@ -144,26 +148,32 @@ class list {
 
  private:
 
+    node* create_node(const T& value = T()) {
+        node* temp = new node;
+        temp->_value = new T;
+        *temp->_value = value;
+        return temp;
+    }
+
     size_t _size;
     std::allocator<node> _alloc;
-    iterator _first;
-    iterator _last;
+    node* _first;
 
 };
 
     template<class T>
     list<T>::list() {
         _size = 0;
-        _first = iterator(*_alloc.allocate(1));
-        _last = _first;
-        _last._node->_next = _first._node;
-        _last._node->_prev = _first._node;
-        _first._node->_next = _last._node;
-        _first._node->_prev = _last._node;
+        _first = create_node();
+        //_first = _alloc.allocate(1);
+        //_first = new node;
+        _first->_next = _first;
+        _first->_prev = _first;
     }
 
     template<class T>
     list<T>::list(size_t count) : list() {
+        _size = count;
         for (; count; --count)
             this->insert(end());
     }
@@ -193,28 +203,24 @@ class list {
 
     template<class T>
     list<T>::~list() {
-        //
+        delete _first;
     }
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
+        if (begin() == end()) {
+            *_first->_value = value;
+            return begin();
+        }
 
-        node* temp = _alloc.allocate(1);
-        temp->_value = new T;
-        *temp->_value = value;
-
-        //pos._node->_prev->_next = temp;  // Переставляем указатель _next предыдущего элемента на новый узел temp
-        //temp->_prev = pos._node->_prev;  // Связываем новый узел с предыдущим от pos, т.е. _prev
-        //pos._node->_prev = temp;         // Переставляем указатель _prev на новый элемент temp
-        //temp->_next = pos._node;         // Связываем новый узел с узлом на pos
+        node* temp = create_node(value);
 
         pos._const_cast()._node->hook(*temp);  // Вставить узел temp перед узлом по итератору pos
 
         if (pos == cbegin())
-            _first = iterator(*temp);
+            _first = temp;
 
         ++_size;
-
         return iterator(*temp);
     }
 
