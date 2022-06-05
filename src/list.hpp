@@ -211,8 +211,7 @@ class list {
 
     template<class T>
     list<T>::~list() {
-        //for (const_iterator it = cbegin(); it != cend(); ++it)
-        //    erase(it);
+        clear();
         delete _first;
     }
 
