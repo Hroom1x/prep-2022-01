@@ -362,5 +362,10 @@ class list {
             insert(cend());
     }
 
+    template<class T>
+    void list<T>::reverse() {
+        std::reverse(begin(), end());
+    }
+
 
 }  // namespace task
