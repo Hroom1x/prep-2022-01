@@ -85,7 +85,7 @@ class list {
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-    list() = default;
+    list();
     list(size_t count, const T& value);
     explicit list(size_t count);
     ~list();
@@ -150,6 +150,17 @@ class list {
     iterator _last;
 
 };
+
+    template<class T>
+    list<T>::list() {
+        _size = 0;
+        _first = iterator(*_alloc.allocate(1));
+        _last = _first;
+        _last._node->_next = _first._node;
+        _last._node->_prev = _first._node;
+        _first._node->_next = _last._node;
+        _first._node->_prev = _last._node;
+    }
 
     template<class T>
     list<T>::list(size_t count) : list() {
