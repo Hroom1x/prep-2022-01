@@ -12,6 +12,15 @@ class list {
         T* _value;
         node* _next;
         node* _prev;
+
+        void hook(node& other) {
+            node* prev_node = _prev;
+            prev_node->_next = &other;
+            other._prev = prev_node;
+
+            _prev = &other;
+            other._next = this;
+        }
     };
 
     class iterator {
@@ -23,22 +32,24 @@ class list {
         using iterator_category = std::bidirectional_iterator_tag;
 
         iterator() : _node() { }
-        explicit iterator(node& _x) : _node(_x) { }
+        explicit iterator(node& _x) : _node(&_x) { }
         iterator(const iterator& other) : _node(other._node) { }
-        iterator& operator=(const iterator& other) { if (this != other) _node = other._node; return *this; }
+        iterator& operator=(const iterator& other) { if (_node != other._node) _node = other._node; return *this; }
 
         iterator& operator++() { _node = _node->_next; return *this; }
-        iterator operator++(int) { iterator temp = this; ++this; return temp; }
-        reference operator*() const { return _node; }
-        pointer operator->() const { return &_node; }
+        iterator operator++(int) { iterator temp = *this; _node = _node->_next; return temp; }
+        reference operator*() const { return *_node->_value; }
+        pointer operator->() const { return _node->_value; }
         iterator& operator--() { _node = _node->_prev; return *this; }
-        iterator operator--(int) { iterator temp = this; --this; return temp; }
+        iterator operator--(int) { iterator temp = *this; _node = _node->_next; return temp; }
 
         bool operator==(iterator other) const { return this->_node == other._node; }
         bool operator!=(iterator other) const { return !(this == other); }
 
-     private:
         node* _node;
+
+     private:
+        //
     };
 
     class const_iterator {
@@ -54,14 +65,14 @@ class list {
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
         const_iterator& operator=(const const_iterator& other) { if (this != other) _node = other._node; return *this; }
 
-        iterator _const_cast() const { return iterator(const_cast<node*>(_node)); }
+        iterator _const_cast() const { return iterator(*const_cast<node*>(_node)); }
 
         const_iterator& operator++() { _node = _node->_next; return *this; }
-        const_iterator operator++(int) { const_iterator temp = this; ++this; return temp; }
-        reference operator*() const { return _node; }
-        pointer operator->() const { return &_node; }
+        const_iterator operator++(int) { const_iterator temp = *this; _node = _node->_next; return temp; }
+        reference operator*() const { return *_node->_value; }
+        pointer operator->() const { return _node->_value; }
         const_iterator& operator--() { _node = _node->_prev; return *this; }
-        const_iterator operator--(int) { const_iterator temp = this; --this; return temp; }
+        const_iterator operator--(int) { const_iterator temp = *this; _node = _node->_prev; return temp; }
 
         bool operator==(const_iterator other) const { return this->_node == other._node; }
         bool operator!=(const_iterator other) const { return !(this == other); }
@@ -104,11 +115,11 @@ class list {
 
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; }
-    size_t max_size() const { return 1 << sizeof(size_t); }
+    size_t max_size() const { return _alloc.max_size(); }
     void clear();
 
-    iterator insert(const_iterator pos, const T& value);
-    iterator insert(const_iterator pos, size_t count, const T& value);
+    iterator insert(const_iterator pos, const T& value = T());
+    iterator insert(const_iterator pos, size_t count, const T& value = T());
 
     iterator erase(const_iterator pos);
     iterator erase(const_iterator first, const_iterator last);
@@ -144,12 +155,6 @@ class list {
     list<T>::list(size_t count) : list() {
         for (; count; --count)
             this->insert(end());
-        //_M_insert(iterator __position, _Args&&... __args)
-        //{
-        //    _Node* __tmp = _M_create_node(std::forward<_Args>(__args)...);
-        //    __tmp->_M_hook(__position._M_node);
-        //    this->_M_inc_size(1);
-        //}
     }
 
     template<class T>
@@ -184,19 +189,22 @@ class list {
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
 
         node* temp = _alloc.allocate(1);
-        temp->_value = value;
+        temp->_value = new T;
+        *temp->_value = value;
 
-        // Получаем узел по константному итератору, чтобы связать его с новым узлом temp
-        node* pos_node = *pos._const_cast();
+        //pos._node->_prev->_next = temp;  // Переставляем указатель _next предыдущего элемента на новый узел temp
+        //temp->_prev = pos._node->_prev;  // Связываем новый узел с предыдущим от pos, т.е. _prev
+        //pos._node->_prev = temp;         // Переставляем указатель _prev на новый элемент temp
+        //temp->_next = pos._node;         // Связываем новый узел с узлом на pos
 
-        pos_node->_prev->_next = temp;  // Переставляем указатель _next предыдущего элемента на новый узел temp
-        temp->_prev = pos_node->_prev;  // Связываем новый узел с предыдущим от pos, т.е. _prev
-        pos_node->_prev = temp;         // Переставляем указатель _prev на новый элемент temp
-        temp->_next = pos_node;         // Связываем новый узел с узлом на pos
+        pos._const_cast()._node->hook(*temp);  // Вставить узел temp перед узлом по итератору pos
+
+        if (pos == cbegin())
+            _first = iterator(*temp);
 
         ++_size;
 
-        return temp;
+        return iterator(*temp);
     }
 
     template<class T>
