@@ -183,7 +183,7 @@ class list {
     list<T>::list(size_t count) : list() {
         _size = count;
         for (; count; --count)
-            this->insert(end());
+            this->insert(cend());
     }
 
     template<class T>

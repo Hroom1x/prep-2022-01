@@ -51,7 +51,7 @@ void FailWithMsg(const std::string& msg, int line) {
 
 
 int main() {
-
+/*
     {
         task::list<int> list;
         list.push_back(42);
@@ -76,13 +76,13 @@ int main() {
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
-/*
+*/
     {
         const task::list<int> list(5);
         ASSERT_TRUE(list.front() == int())
         ASSERT_TRUE(list.back() == int())
     }
-
+/*
     {
         task::list<size_t> list_task(10, 30);
         std::list<size_t> list_std(10, 30);
