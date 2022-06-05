@@ -268,26 +268,6 @@ class list {
     }
 
     template<class T>
-    void list<T>::clear() {
-        delete[] m_data;
-        m_data = new T[0];
-        _size = 0;
-    }
-
-    template<class T>
-    void list<T>::resize(size_t count) {
-        T* temp = new T[count];
-        if (count >= _size) {
-            std::copy(begin(), end(), iterator(temp));
-        } else {
-            std::copy_n(begin(), count, iterator(temp));
-        }
-        _size = count;
-        delete[] m_data;
-        m_data = temp;
-    }
-
-    template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, size_t count, const T &value) {
         T* temp = new T[size() + count];
         std::copy(cbegin(), pos, iterator(temp));
@@ -383,6 +363,25 @@ class list {
         iterator temp_it = begin();
         begin() = other.begin();
         other.begin() = begin();
+    }
+
+    template<class T>
+    void list<T>::push_front(const T &value) {
+        insert(cbegin(), value);
+    }
+
+    template<class T>
+    void list<T>::clear() {
+        while (begin() != end())
+            erase(cbegin());
+    }
+
+    template<class T>
+    void list<T>::resize(size_t count) {
+        while (count < size())
+            erase(cend());
+        while (count > size())
+            insert(cend());
     }
 
 

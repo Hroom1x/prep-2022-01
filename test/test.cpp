@@ -63,7 +63,6 @@ int main() {
         ASSERT_TRUE(list.empty())
     }
 
-/*
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -77,7 +76,7 @@ int main() {
         ASSERT_TRUE(list.size() == 10)
         ASSERT_TRUE(list.back() == "")
     }
-
+/*
     {
         const task::list<int> list(5);
         ASSERT_TRUE(list.front() == int())
