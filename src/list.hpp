@@ -29,7 +29,7 @@ class list {
             next_node->_prev = prev_node;
             _prev = nullptr;
             _next = nullptr;
-            return next_node;
+            return this;
         }
 
         ~node() {
@@ -58,7 +58,7 @@ class list {
         iterator operator--(int) { iterator temp = *this; _node = _node->_next; return temp; }
 
         bool operator==(iterator other) const { return this->_node == other._node; }
-        bool operator!=(iterator other) const { return !(this == other); }
+        bool operator!=(iterator other) const { return this->_node != other._node; }
 
         node* _node;
 
@@ -89,7 +89,7 @@ class list {
         const_iterator operator--(int) { const_iterator temp = *this; _node = _node->_prev; return temp; }
 
         bool operator==(const_iterator other) const { return this->_node == other._node; }
-        bool operator!=(const_iterator other) const { return !(this == other); }
+        bool operator!=(const_iterator other) const { return this->_node != other._node; }
 
      private:
         const node* _node;
@@ -211,6 +211,8 @@ class list {
 
     template<class T>
     list<T>::~list() {
+        //for (const_iterator it = cbegin(); it != cend(); ++it)
+        //    erase(it);
         delete _first;
     }
 
@@ -228,8 +230,11 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator pos) {
+        if (_size == 0) return begin();
         --_size;
-        node* next_node = pos._const_cast()._node->unhook();
+        node* next_node = std::next(pos)._const_cast()._node;
+        node* curr_node = pos._const_cast()._node->unhook();
+        delete curr_node;
         if (pos == cbegin())
             _first = next_node;
         return iterator(*next_node);
