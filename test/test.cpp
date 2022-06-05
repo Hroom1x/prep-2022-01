@@ -104,7 +104,7 @@ int main() {
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
-*/
+
     {
         task::list<size_t> list;
         RandomFill(list, RandomUInt(1000, 5000));
@@ -131,7 +131,7 @@ int main() {
         list = list2 = list3;
         ASSERT_EQUAL_MSG(list, list3, "Assignment operator")
     }
-/*
+*/
 
     {
         task::list<size_t> list_task;
@@ -168,7 +168,7 @@ int main() {
 
             auto& element_reference = list_task2.front();
 
-            auto task_it = list_task.begin();
+            auto task_it = list_task.cbegin();
             auto std_it = list_std.begin();
             list_task.splice(++task_it, list_task2);
             list_std.splice(++std_it, list_std2);
@@ -216,7 +216,7 @@ int main() {
             ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }
     }
-
+/*
     {
         const size_t LIST_COUNT = 5;
         const size_t ITER_COUNT = 4000;

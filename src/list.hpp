@@ -284,54 +284,7 @@ class list {
             }
         }
     }
-/*
-    template<class T>
-    void list<T>::reverse() {
-        std::reverse(begin(), end());
-    }
 
-    template<class T>
-    void list<T>::splice(list::const_iterator pos, list &other) {
-        T* temp = new T[size() + other.size()];
-        std::copy(cbegin(), pos, iterator(temp));
-        std::copy(other.cbegin(), other.cend(), std::next(iterator(temp), std::distance(cbegin(), pos)));
-        std::copy(pos, cend(), std::next(iterator(temp), std::distance(cbegin(), pos) + other._size));
-        _size += other.size();
-        other.clear();
-        delete[] m_data;
-        m_data = temp;
-    }
-
-    template<class T>
-    void list<T>::unique() {
-        iterator new_end = std::unique(begin(), end());
-        // resize(std::distance(begin(), new_end));
-        std::destroy(new_end, end());
-        _size = std::distance(begin(), new_end);
-    }
-
-    template<class T>
-    void list<T>::remove(const T &value) {
-        size_t count = 0;
-        for (iterator it = --end(); it != --begin(); --it) {
-            if (*it == value) {
-                std::move(std::next(it), end(), it);
-                count++;
-            }
-        }
-        resize(size() - count);
-    }
-
-    template<class T>
-    void list<T>::merge(list &other) {
-        T* temp = new T[size() + other.size()];
-        std::merge(begin(), end(), other.begin(), other.end(), temp);
-        delete[] m_data;
-        m_data = temp;
-        _size += other.size();
-        other.clear();
-    }
-*/
     template<class T>
     void list<T>::swap(list &other) {
         size_t temp_size = other.size();
@@ -365,6 +318,46 @@ class list {
     template<class T>
     void list<T>::reverse() {
         std::reverse(begin(), end());
+    }
+
+    template<class T>
+    void list<T>::unique() {
+        iterator new_end = std::unique(begin(), end());
+        resize(std::distance(begin(), new_end));
+    }
+
+    template<class T>
+    void list<T>::splice(list::const_iterator pos, list &other) {
+        //T* temp = new T[size() + other.size()];
+        //std::copy(cbegin(), pos, iterator(temp));
+        //std::copy(other.cbegin(), other.cend(), std::next(iterator(temp), std::distance(cbegin(), pos)));
+        //std::copy(pos, cend(), std::next(iterator(temp), std::distance(cbegin(), pos) + other._size));
+        //_size += other.size();
+        //other.clear();
+        //delete[] m_data;
+        //m_data = temp;
+    }
+
+    template<class T>
+    void list<T>::remove(const T &value) {
+        //size_t count = 0;
+        //for (iterator it = --end(); it != --begin(); --it) {
+        //    if (*it == value) {
+        //        std::move(std::next(it), end(), it);
+        //        count++;
+        //    }
+        //}
+        //resize(size() - count);
+    }
+
+    template<class T>
+    void list<T>::merge(list &other) {
+        //T* temp = new T[size() + other.size()];
+        //std::merge(begin(), end(), other.begin(), other.end(), temp);
+        //delete[] m_data;
+        //m_data = temp;
+        //_size += other.size();
+        //other.clear();
     }
 
 
