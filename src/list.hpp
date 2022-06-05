@@ -22,6 +22,16 @@ class list {
             other._next = this;
         }
 
+        node* unhook() {
+            node* prev_node = _prev;
+            node* next_node = _next;
+            prev_node->_next = next_node;
+            next_node->_prev = prev_node;
+            _prev = nullptr;
+            _next = nullptr;
+            return next_node;
+        }
+
         ~node() {
             delete _value;
         }
@@ -165,8 +175,6 @@ class list {
     list<T>::list() {
         _size = 0;
         _first = create_node();
-        //_first = _alloc.allocate(1);
-        //_first = new node;
         _first->_next = _first;
         _first->_prev = _first;
     }
@@ -208,41 +216,28 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
-        if (begin() == end()) {
-            *_first->_value = value;
-            return begin();
-        }
+        ++_size;
 
         node* temp = create_node(value);
-
         pos._const_cast()._node->hook(*temp);  // Вставить узел temp перед узлом по итератору pos
 
         if (pos == cbegin())
             _first = temp;
-
-        ++_size;
         return iterator(*temp);
+    }
+
+    template<class T>
+    class list<T>::iterator list<T>::erase(list::const_iterator pos) {
+        --_size;
+        node* next_node = pos._const_cast()._node->unhook();
+        if (pos == cbegin())
+            _first = next_node;
+        return iterator(*next_node);
     }
 
     template<class T>
     void list<T>::push_back(const T &value) {
         insert(cend(), value);
-    }
-/*
-    template<class T>
-    void list<T>::push_front(const T &value) {
-        insert(cbegin(), value);
-    }
-
-    template<class T>
-    class list<T>::iterator list<T>::erase(const_iterator pos) {
-        T* temp = new T[size() - 1];
-        std::copy(cbegin(), pos, iterator(temp));
-        std::copy(std::next(pos), cend(), iterator(temp + std::distance(cbegin(), pos)));
-        --_size;
-        delete[] m_data;
-        m_data = temp;
-        return end();
     }
 
     template<class T>
@@ -253,6 +248,18 @@ class list {
     template<class T>
     void list<T>::pop_back() {
         erase(std::prev(cend()));
+    }
+/*
+
+    template<class T>
+    class list<T>::iterator list<T>::erase(const_iterator pos) {
+        T* temp = new T[size() - 1];
+        std::copy(cbegin(), pos, iterator(temp));
+        std::copy(std::next(pos), cend(), iterator(temp + std::distance(cbegin(), pos)));
+        --_size;
+        delete[] m_data;
+        m_data = temp;
+        return end();
     }
 
     template<class T>
