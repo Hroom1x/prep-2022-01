@@ -77,7 +77,7 @@ class list {
         const_iterator() : _node() { }
         const_iterator(const const_iterator& other) : _node(other._node) { }
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
-        const_iterator& operator=(const const_iterator& other) { if (this != other) _node = other._node; return *this; }
+        const_iterator& operator=(const const_iterator& other) { if (_node != other._node) _node = other._node; return *this; }
 
         iterator _const_cast() const { return iterator(*const_cast<node*>(_node)); }
 
@@ -133,7 +133,7 @@ class list {
     void clear();
 
     iterator insert(const_iterator pos, const T& value = T());
-    iterator insert(const_iterator pos, size_t count, const T& value = T());
+    iterator insert(const_iterator pos, size_t count, const T& value);
 
     iterator erase(const_iterator pos);
     iterator erase(const_iterator first, const_iterator last);
@@ -181,7 +181,6 @@ class list {
 
     template<class T>
     list<T>::list(size_t count) : list() {
-        _size = count;
         for (; count; --count)
             this->insert(cend());
     }
@@ -228,6 +227,15 @@ class list {
     }
 
     template<class T>
+    class list<T>::iterator list<T>::insert(list::const_iterator pos, size_t count, const T &value) {
+        if (count == 0)
+            return pos._const_cast();
+        for (; count > 1; --count)
+            insert(pos, value);
+        return insert(pos, value);
+    }
+
+    template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator pos) {
         if (_size == 0) return begin();
         --_size;
@@ -237,6 +245,15 @@ class list {
         if (pos == cbegin())
             _first = next_node;
         return iterator(*next_node);
+    }
+
+    template<class T>
+    class list<T>::iterator list<T>::erase(list::const_iterator first, list::const_iterator last) {
+        if (first == last)
+            return first._const_cast();
+        const_iterator result = first;
+        for (; result != last;) result = const_iterator(erase(result));
+        return list::iterator();
     }
 
     template<class T>
