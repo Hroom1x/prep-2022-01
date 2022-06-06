@@ -208,10 +208,17 @@ int main() {
             list_task.merge(list_task2);
             list_std.merge(list_std2);
 
+            for (int i = 0; i < list_std.size(); i++) {
+                std::cout<<*std::next(list_std.begin(), i)<<"   "<<*std::next(list_task.begin(), i)<<std::endl;
+            }
+
             ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
             ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
 
             element_reference = 1000;
+            for (int i = 0; i < list_std.size(); i++) {
+                std::cout<<*std::next(list_std.begin(), i)<<"   "<<*std::next(list_task.begin(), i)<<std::endl;
+            }
 
             ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }

@@ -32,6 +32,8 @@ class list {
             return this;
         }
 
+        T& operator*() const { return *_value; }
+
         ~node() {
             delete _value;
         }
@@ -129,7 +131,7 @@ class list {
 
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; }
-    size_t max_size() const { return _alloc.max_size(); }
+    size_t max_size() const { return 100000; /* _alloc.max_size(); */ }  // placeholder
     void clear();
 
     iterator insert(const_iterator pos, const T& value = T());
@@ -166,7 +168,7 @@ class list {
     }
 
     size_t _size;
-    std::allocator<node> _alloc;
+    //std::allocator<node> _alloc;
     node* _first;
 
 };
@@ -364,12 +366,15 @@ class list {
 
     template<class T>
     void list<T>::merge(list &other) {
-        //T* temp = new T[size() + other.size()];
-        //std::merge(begin(), end(), other.begin(), other.end(), temp);
-        //delete[] m_data;
-        //m_data = temp;
+        list<T> temp(size() + other.size());
+        std::merge(other.begin(), other.end(), begin(), end(), temp.begin());
         //_size += other.size();
-        //other.clear();
+        swap(temp);
+
+        other._first = create_node();
+        other._first->_next = other._first;
+        other._first->_prev = other._first;
+        other._size = 0;
     }
 
 
