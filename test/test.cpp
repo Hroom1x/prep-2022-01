@@ -223,7 +223,7 @@ int main() {
             ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }
     }
-/*
+return -1;
     {
         const size_t LIST_COUNT = 5;
         const size_t ITER_COUNT = 4000;
@@ -282,5 +282,5 @@ int main() {
             }
         }
     }
-*/
+
 }

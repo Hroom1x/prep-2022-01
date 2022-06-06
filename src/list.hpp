@@ -276,11 +276,12 @@ class list {
     void list<T>::sort() {
         iterator first_it = begin();
         iterator last_it = end();
+        node* temp;
         // Bubble sort
         for (iterator it1 = first_it; it1 != last_it; ++it1) {
             for (iterator it2 = first_it; it2 != std::prev(last_it); ++it2) {
                 if (*it2 > *std::next(it2)) {
-                    std::iter_swap(it2, std::next(it2));
+                    std::swap(it2._node->_value, std::next(it2)._node->_value);
                 }
             }
         }
@@ -364,43 +365,9 @@ class list {
 
     template<class T>
     void list<T>::merge(list &other) {
-        other.begin() = this->begin();
-
-        //list<T> temp(size() + other.size());
-        //std::merge(other.begin(), other.end(), begin(), end(), temp.begin());
-        //_size += other.size();
-        //swap(temp);
-
-        iterator _first1 = ++begin();
-        iterator _last1 = end();
-        iterator _first2 = ++other.begin();
-        iterator _last2 = other.end();
-        list<T> temp;
-        iterator it = temp.begin();
-
-        while (_first1 != _last1 && _first2 != _last2)
-        {
-            if (*_first1 > *_first2)
-            {
-                //*__result = *__first2;
-                //++__first2;
-                ++_first2;
-                it._node->hook(*_first2._node->_prev);
-            }
-            else
-            {
-                //*__result = *__first1;
-                //++__first1;
-                ++_first1;
-                it._node->hook(*_first1._node->_prev);
-            }
-            //++__result;
-        }
-
-        other._first = create_node();
-        other._first->_next = other._first;
-        other._first->_prev = other._first;
-        other._size = 0;
+        auto dist = std::distance(begin(), end());
+        this->splice(cend(), other);
+        std::inplace_merge(begin(), std::next(begin(), dist), end());
     }
 
 
