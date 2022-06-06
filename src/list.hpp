@@ -48,7 +48,7 @@ class list {
         iterator() : _node() { }
         explicit iterator(node& _x) : _node(&_x) { }
         iterator(const iterator& other) : _node(other._node) { }
-        iterator& operator=(const iterator& other) { if (_node != other._node) _node = other._node; return *this; }
+        iterator& operator=(const iterator& other) { _node = other._node; return *this; }
 
         iterator& operator++() { _node = _node->_next; return *this; }
         iterator operator++(int) { iterator temp = *this; _node = _node->_next; return temp; }
@@ -77,7 +77,7 @@ class list {
         const_iterator() : _node() { }
         const_iterator(const const_iterator& other) : _node(other._node) { }
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
-        const_iterator& operator=(const const_iterator& other) { if (_node != other._node) _node = other._node; return *this; }
+        const_iterator& operator=(const const_iterator& other) { _node = other._node; return *this; }
 
         iterator _const_cast() const { return iterator(*const_cast<node*>(_node)); }
 
@@ -252,8 +252,9 @@ class list {
         if (first == last)
             return first._const_cast();
         const_iterator result = first;
-        for (; result != last;) result = const_iterator(erase(result));
-        return list::iterator();
+        while (result != last)
+            result = const_iterator(erase(result));
+        return result._const_cast();
     }
 
     template<class T>
@@ -328,14 +329,24 @@ class list {
 
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
-        //T* temp = new T[size() + other.size()];
-        //std::copy(cbegin(), pos, iterator(temp));
-        //std::copy(other.cbegin(), other.cend(), std::next(iterator(temp), std::distance(cbegin(), pos)));
-        //std::copy(pos, cend(), std::next(iterator(temp), std::distance(cbegin(), pos) + other._size));
-        //_size += other.size();
-        //other.clear();
-        //delete[] m_data;
-        //m_data = temp;
+        node* pos_prev = pos._const_cast()._node->_prev;
+
+        pos_prev->_next = other.begin()._node;
+
+        node* other_end_prev = other.end()._node->_prev;
+        node* other_end = other.end()._node;
+        delete other_end;
+
+        pos._const_cast()._node->_prev = other_end_prev;
+        other_end_prev->_next = pos._const_cast()._node;
+        other.begin()._node->_prev = pos_prev;
+
+        _size += other.size();
+
+        other._first = create_node();
+        other._first->_next = other._first;
+        other._first->_prev = other._first;
+        other._size = 0;
     }
 
     template<class T>
