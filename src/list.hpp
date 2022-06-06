@@ -51,7 +51,12 @@ class list {
         iterator() : _node() { }
         explicit iterator(node& _x) : _node(&_x) { }
         iterator(const iterator& other) : _node(other._node) { }
-        iterator& operator=(const iterator& other) { if (&other != this) _node = other._node; return *this; }
+        iterator& operator=(const iterator& other) {
+            if (&other != this) {
+                _node = other._node;
+            }
+            return *this;
+        }
 
         iterator& operator++() { _node = _node->_next; return *this; }
         iterator operator++(int) { iterator temp = *this; _node = _node->_next; return temp; }
@@ -79,7 +84,12 @@ class list {
         const_iterator() : _node() { }
         const_iterator(const const_iterator& other) : _node(other._node) { }
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
-        const_iterator& operator=(const const_iterator& other) { if (&other != this) _node = other._node; return *this; }
+        const_iterator& operator=(const const_iterator& other) {
+            if (&other != this) {
+                _node = other._node;
+            }
+            return *this;
+        }
 
         iterator _const_cast() const { return iterator(*const_cast<node*>(_node)); }
 
