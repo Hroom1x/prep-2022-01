@@ -351,14 +351,15 @@ class list {
 
     template<class T>
     void list<T>::remove(const T &value) {
-        //size_t count = 0;
-        //for (iterator it = --end(); it != --begin(); --it) {
-        //    if (*it == value) {
-        //        std::move(std::next(it), end(), it);
-        //        count++;
-        //    }
-        //}
-        //resize(size() - count);
+        const_iterator it = cbegin();
+        // Копируем value, т.к. ссылка может указывать на стёртый элемент в дальнейшем
+        T copied_value = value;
+        while (it != cend()) {
+            if (*it == copied_value)
+                it = const_iterator(erase(it));
+            else
+                ++it;
+        }
     }
 
     template<class T>
