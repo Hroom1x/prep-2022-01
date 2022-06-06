@@ -1,5 +1,6 @@
 #pragma once // NOLINT
 #include <iterator>
+#include <algorithm>
 
 
 namespace task {
@@ -37,8 +38,10 @@ class list {
         }
     };
 
+    class const_iterator;
+
     class iterator {
-    public:
+     public:
         using difference_type = ptrdiff_t;
         using value_type = T;
         using pointer = T*;
@@ -57,13 +60,12 @@ class list {
         iterator& operator--() { _node = _node->_prev; return *this; }
         iterator operator--(int) { iterator temp = *this; _node = _node->_next; return temp; }
 
+        operator const_iterator() const { return const_iterator(*this); }
+
         bool operator==(iterator other) const { return this->_node == other._node; }
         bool operator!=(iterator other) const { return this->_node != other._node; }
 
         node* _node;
-
-     private:
-        //
     };
 
     class const_iterator {
@@ -129,7 +131,7 @@ class list {
 
     bool empty() const { return _size == 0; }
     size_t size() const { return _size; }
-    size_t max_size() const { return 100000; /* _alloc.max_size(); */ }  // placeholder
+    static size_t max_size() { return std::numeric_limits<typename iterator::difference_type>::max(); }
     void clear();
 
     iterator insert(const_iterator pos, const T& value = T());
@@ -152,12 +154,11 @@ class list {
     void merge(list& other);
     void splice(const_iterator pos, list& other);
     void remove(const T& value);
-    void reverse();
+    void reverse() const;
     void unique();
-    void sort();
+    void sort() const;
 
  private:
-
     node* create_node(const T& value = T()) {
         node* temp = new node;
         temp->_value = new T;
@@ -166,9 +167,7 @@ class list {
     }
 
     size_t _size;
-    //std::allocator<node> _alloc;
     node* _first;
-
 };
 
     template<class T>
@@ -273,10 +272,9 @@ class list {
     }
 
     template<class T>
-    void list<T>::sort() {
+    void list<T>::sort() const {
         iterator first_it = begin();
         iterator last_it = end();
-        node* temp;
         // Bubble sort
         for (iterator it1 = first_it; it1 != last_it; ++it1) {
             for (iterator it2 = first_it; it2 != std::prev(last_it); ++it2) {
@@ -318,7 +316,7 @@ class list {
     }
 
     template<class T>
-    void list<T>::reverse() {
+    void list<T>::reverse() const {
         std::reverse(begin(), end());
     }
 

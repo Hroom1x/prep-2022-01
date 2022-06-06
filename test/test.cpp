@@ -63,6 +63,7 @@ int main() {
         ASSERT_TRUE(list.empty())
     }
 
+
     {
         task::list<std::string> list;
         list.push_front("test");
@@ -88,22 +89,23 @@ int main() {
         std::list<size_t> list_std(10, 30);
         ASSERT_EQUAL_MSG(list_task, list_std, "Count-value constructor")
 
-        list_task.insert(list_task.cbegin(), 20);
+        list_task.insert(list_task.begin(), 20);
         list_std.insert(list_std.begin(), 20);
 
-        list_task.insert(list_task.cend(), 10, 20);
+        list_task.insert(list_task.end(), 10, 20);
         list_std.insert(list_std.end(), 10, 20);
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::insert")
 
-        list_task.erase(list_task.cbegin(), std::next(list_task.cbegin(), 5));
+        list_task.erase(list_task.begin(), std::next(list_task.begin(), 5));
         list_std.erase(list_std.begin(), std::next(list_std.begin(), 5));
 
-        list_task.erase(std::prev(list_task.cend(), 5), list_task.cend());
+        list_task.erase(std::prev(list_task.end(), 5), list_task.end());
         list_std.erase(std::prev(list_std.end(), 5), list_std.end());
 
         ASSERT_EQUAL_MSG(list_task, list_std, "list::erase")
     }
+
 
     {
         task::list<size_t> list;
@@ -168,7 +170,7 @@ int main() {
 
             auto& element_reference = list_task2.front();
 
-            auto task_it = list_task.cbegin();
+            auto task_it = list_task.begin();
             auto std_it = list_std.begin();
             list_task.splice(++task_it, list_task2);
             list_std.splice(++std_it, list_std2);
@@ -208,22 +210,15 @@ int main() {
             list_task.merge(list_task2);
             list_std.merge(list_std2);
 
-            //for (int i = 0; i < list_std.size(); i++) {
-            //    std::cout<<*std::next(list_std.begin(), i)<<"   "<<*std::next(list_task.begin(), i)<<std::endl;
-            //}
-
             ASSERT_EQUAL_MSG(list_task, list_std, "list::merge")
             ASSERT_EQUAL_MSG(list_task2, list_std2, "list::merge")
 
             element_reference = 1000;
-            //for (int i = 0; i < list_std.size(); i++) {
-            //    std::cout<<*std::next(list_std.begin(), i)<<"   "<<*std::next(list_task.begin(), i)<<std::endl;
-            //}
 
             ASSERT_TRUE_MSG(std::find(list_task.begin(), list_task.end(), 1000) != list_task.end(), "list::merge")
         }
     }
-return -1;
+
     {
         const size_t LIST_COUNT = 5;
         const size_t ITER_COUNT = 4000;
