@@ -1,22 +1,6 @@
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "parser.h"
-
-static char *read_content(FILE *mail) {
-    if (!mail) {
-        return NULL;
-    }
-
-    fseek(mail, 0, SEEK_END);
-    size_t length = ftell(mail);
-    rewind(mail);
-    char *content = malloc(length + 1);
-    fread(content, sizeof(char), length, mail);
-    content[length] = '\0';
-    return content;
-}
 
 int main(int argc, const char **argv) {
     if (argc != 2) {
@@ -24,16 +8,7 @@ int main(int argc, const char **argv) {
     }
 
     const char *path_to_eml = argv[1];
-    FILE *mail_file = fopen(path_to_eml, "r");
-    char *content = read_content(mail_file);
-    fclose(mail_file);
+    puts(path_to_eml);
 
-    char *res = mail_parse(content);
-    if (!res) {
-        free(content);
-        return -1;
-    }
-    puts(res);
-    free(content);
     return 0;
 }
