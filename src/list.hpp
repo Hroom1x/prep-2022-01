@@ -48,8 +48,8 @@ class list {
         using reference = T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        iterator() : _node() { }
-        explicit iterator(node& _x) : _node(&_x) { }
+        iterator() = default;
+        explicit iterator(node* _x) : _node(_x) { }
         iterator(const iterator& other) : _node(other._node) { }
         iterator& operator=(const iterator& other) {
             if (&other != this) {
@@ -81,7 +81,7 @@ class list {
         using reference = const T&;
         using iterator_category = std::bidirectional_iterator_tag;
 
-        const_iterator() : _node() { }
+        const_iterator() = default;
         const_iterator(const const_iterator& other) : _node(other._node) { }
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
         const_iterator& operator=(const const_iterator& other) {
@@ -91,7 +91,7 @@ class list {
             return *this;
         }
 
-        iterator _const_cast() const { return iterator(*const_cast<node*>(_node)); }
+        iterator _const_cast() const { return iterator(const_cast<node*>(_node)); }
 
         const_iterator& operator++() { _node = _node->_next; return *this; }
         const_iterator operator++(int) { const_iterator temp = *this; _node = _node->_next; return temp; }
@@ -126,8 +126,8 @@ class list {
     const T& back() const { return *std::prev(end()); }
 
 
-    iterator begin() const { return iterator(*_first); }
-    iterator end() const { return iterator(*_first->_prev); }
+    iterator begin() const { return iterator(_first); }
+    iterator end() const { return iterator(_first->_prev); }
 
     const_iterator cbegin() const { return const_iterator(begin()); }
     const_iterator cend() const { return const_iterator(end()); }
@@ -232,7 +232,7 @@ class list {
 
         if (pos == cbegin())
             _first = temp;
-        return iterator(*temp);
+        return iterator(temp);
     }
 
     template<class T>
@@ -246,14 +246,14 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator pos) {
-        if (_size == 0) return begin();
+        if (empty()) return begin();
         --_size;
         node* next_node = std::next(pos)._const_cast()._node;
         node* curr_node = pos._const_cast()._node->unhook();
         delete curr_node;
         if (pos == cbegin())
             _first = next_node;
-        return iterator(*next_node);
+        return iterator(next_node);
     }
 
     template<class T>
@@ -313,7 +313,7 @@ class list {
 
     template<class T>
     void list<T>::clear() {
-        while (begin() != end())
+        while (!empty())
             erase(cbegin());
     }
 
@@ -365,7 +365,7 @@ class list {
         T copied_value = value;
         while (it != cend()) {
             if (*it == copied_value)
-                it = const_iterator(erase(it));
+                it = erase(it);
             else
                 ++it;
         }
