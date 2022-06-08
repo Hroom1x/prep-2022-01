@@ -85,7 +85,7 @@ for test in ${TESTS}; do
     fi
 
     if [[ "${WITH_MEMCHECK}" == "1" ]]; then
-        RECEIVED=$(echo "${IN}" | eval "valgrind --tool=memcheck --leak-check=full --log-file=${VALGRIND_LOG} ${PROG_PATH} ${KEYS}")
+        RECEIVED=$(echo "${IN}" | eval "valgrind --tool=memcheck --leak-check=summary --log-file=${VALGRIND_LOG} ${PROG_PATH} ${KEYS}")
 
         NO_LOST=$(grep "${NO_LOST_PATTERN}" ${VALGRIND_LOG})
         NO_ERROR=$(grep "${NO_ERROR_PATTERN}" ${VALGRIND_LOG})
