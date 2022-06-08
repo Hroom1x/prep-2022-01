@@ -70,6 +70,8 @@ class list {
         bool operator==(iterator other) const { return this->_node == other._node; }
         bool operator!=(iterator other) const { return this->_node != other._node; }
 
+     private:
+        friend list;
         node* _node;
     };
 
