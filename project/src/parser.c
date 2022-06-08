@@ -93,6 +93,7 @@ static void skip_value(char **end) {
 static char *get_value(char **end) {
     char *value = calloc(1, sizeof(char));
     size_t length = 0;
+    char *temp_realloc = NULL;
     do {
         while ((**end == ' ') || (**end == '\t')) {
             *end = *end + 1;
@@ -116,7 +117,13 @@ static char *get_value(char **end) {
         }
         *end = *end + 1;
         length += sizeof(char);
-        value = realloc(value, length);
+        temp_realloc = realloc(value, length);
+        if (temp_realloc == NULL) {
+            free(value);
+            return NULL;
+        } else {
+            value = temp_realloc;
+        }
         value[length - 1] = ' ';
     } while ((**end == ' ') || (**end == '\t'));
     value[length - 1] = '\0';
@@ -125,6 +132,7 @@ static char *get_value(char **end) {
 
 static char *get_line(char **end) {
     char *value = calloc(1, sizeof(char));
+    char *temp_realloc = NULL;
     size_t length = 0;
     while (**end != '\n' && **end != '\0') {
         if (**end == '\r') {
@@ -147,7 +155,13 @@ static char *get_line(char **end) {
         *end = *end + 1;
     }
     length += sizeof(char);
-    value = realloc(value, length);
+    temp_realloc = realloc(value, length);
+    if (temp_realloc == NULL) {
+        free(value);
+        return NULL;
+    } else {
+        value = temp_realloc;
+    }
     value[length - 1] = '\0';
     return value;
 }
@@ -167,6 +181,7 @@ static char *get_header(char **end) {
         return NULL;
     }
     char *value = calloc(length + 1, sizeof(char));
+    if (!value) return NULL;
     value = strncpy(value, start, length);
     *end = *end + 1;
     if (!value) {
