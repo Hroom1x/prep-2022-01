@@ -14,13 +14,19 @@ class list {
         node* _next;
         node* _prev;
 
-        void hook(node& other) {
-            node* prev_node = _prev;
-            prev_node->_next = &other;
-            other._prev = prev_node;
+        node() { _value = new T(); }
 
-            _prev = &other;
-            other._next = this;
+        void hook(node* other) {
+            if (this == other) {
+                _next = this;
+                _prev = this;
+            }
+            node* prev_node = _prev;
+            prev_node->_next = other;
+            other->_prev = prev_node;
+
+            _prev = other;
+            other->_next = this;
         }
 
         node* unhook() {
@@ -72,7 +78,7 @@ class list {
 
      private:
         friend list;
-        node* _node;
+        node* _node{};
     };
 
     class const_iterator {
@@ -84,6 +90,7 @@ class list {
         using iterator_category = std::bidirectional_iterator_tag;
 
         const_iterator() = default;
+        explicit const_iterator(node* _x) : _node(_x) { }
         const_iterator(const const_iterator& other) : _node(other._node) { }
         explicit const_iterator(const iterator& other) : _node(other._node) {  }
         const_iterator& operator=(const const_iterator& other) {
@@ -106,14 +113,15 @@ class list {
         bool operator!=(const_iterator other) const { return this->_node != other._node; }
 
      private:
-        const node* _node;
+        friend list;
+        const node* _node{};
     };
 
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-    list();
+    list() = default;
     list(size_t count, const T& value);
     explicit list(size_t count);
     ~list();
@@ -129,7 +137,7 @@ class list {
 
 
     iterator begin() const { return iterator(_first); }
-    iterator end() const { return iterator(_first->_prev); }
+    iterator end() const { return (_first != nullptr) ? iterator(_first->_prev) : (begin()); }
 
     const_iterator cbegin() const { return const_iterator(begin()); }
     const_iterator cend() const { return const_iterator(end()); }
@@ -178,17 +186,9 @@ class list {
         return temp;
     }
 
-    size_t _size;
-    node* _first;
+    size_t _size{0};
+    node* _first{};
 };
-
-    template<class T>
-    list<T>::list() {
-        _size = 0;
-        _first = create_node();
-        _first->_next = _first;
-        _first->_prev = _first;
-    }
 
     template<class T>
     list<T>::list(size_t count) : list() {
@@ -227,13 +227,18 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
-        ++_size;
-
         node* temp = create_node(value);
-        pos._const_cast()._node->hook(*temp);  // Вставить узел temp перед узлом по итератору pos
+        ++_size;
+        if (pos._node == nullptr) {
+            _first = temp;
+            temp->hook(temp);
+            return iterator(temp);
+        }
+
+        pos._const_cast()._node->hook(temp);  // Вставить узел temp перед узлом по итератору pos
 
         if (pos == cbegin())
-            _first = temp;
+            _first = temp;  // Вставленный элемент становится первым
         return iterator(temp);
     }
 
