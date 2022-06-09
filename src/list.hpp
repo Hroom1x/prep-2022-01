@@ -253,20 +253,26 @@ class list {
 
     template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator pos) {
-        if (empty()) return begin();
+        if (empty())
+            return begin();
         --_size;
-        node* next_node = std::next(pos)._const_cast()._node;
+        node* next_node = pos._const_cast()._node->_next;
         node* curr_node = pos._const_cast()._node->unhook();
         delete curr_node;
         if (pos == cbegin())
             _first = next_node;
+        if (empty()) {
+            delete next_node;
+            _first = nullptr;
+            next_node = _first;
+        }
         return iterator(next_node);
     }
 
     template<class T>
     class list<T>::iterator list<T>::erase(list::const_iterator first, list::const_iterator last) {
-        if (first == last)
-            return first._const_cast();
+        if (empty())
+            return begin();
         const_iterator result = first;
         while (result != last)
             result = const_iterator(erase(result));
@@ -321,7 +327,7 @@ class list {
     template<class T>
     void list<T>::clear() {
         while (!empty())
-            erase(cbegin());
+            pop_front();
     }
 
     template<class T>
