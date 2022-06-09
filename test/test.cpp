@@ -51,7 +51,6 @@ void FailWithMsg(const std::string& msg, int line) {
 
 
 int main() {
-return 100;
     {
         task::list<int> list;
         list.push_back(42);

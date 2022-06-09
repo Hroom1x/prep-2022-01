@@ -6,187 +6,187 @@
 namespace task {
 
 
-template<class T>
-class list {
- public:
-    struct node {
-        T* _value;
-        node* _next;
-        node* _prev;
+    template<class T>
+    class list {
+    public:
+        struct node {
+            T* _value;
+            node* _next;
+            node* _prev;
 
-        void hook(node* other) {
-            if (this == other) {
-                _next = this;
-                _prev = this;
+            void hook(node* other) {
+                if (this == other) {
+                    _next = this;
+                    _prev = this;
+                }
+                node* prev_node = _prev;
+                prev_node->_next = other;
+                other->_prev = prev_node;
+
+                _prev = other;
+                other->_next = this;
             }
-            node* prev_node = _prev;
-            prev_node->_next = other;
-            other->_prev = prev_node;
 
-            _prev = other;
-            other->_next = this;
-        }
-
-        node* unhook() {
-            node* prev_node = _prev;
-            node* next_node = _next;
-            prev_node->_next = next_node;
-            next_node->_prev = prev_node;
-            _prev = nullptr;
-            _next = nullptr;
-            return this;
-        }
-
-        ~node() {
-            delete _value;
-        }
-    };
-
-    class const_iterator;
-
-    class iterator {
-     public:
-        using difference_type = ptrdiff_t;
-        using value_type = T;
-        using pointer = T*;
-        using reference = T&;
-        using iterator_category = std::bidirectional_iterator_tag;
-
-        iterator() = default;
-        explicit iterator(node* _x) : _node(_x) { }
-        iterator(const iterator& other) : _node(other._node) { }
-        iterator& operator=(const iterator& other) {
-            if (&other != this) {
-                _node = other._node;
+            node* unhook() {
+                node* prev_node = _prev;
+                node* next_node = _next;
+                prev_node->_next = next_node;
+                next_node->_prev = prev_node;
+                _prev = nullptr;
+                _next = nullptr;
+                return this;
             }
-            return *this;
-        }
 
-        iterator& operator++() { _node = _node->_next; return *this; }
-        iterator operator++(int) { iterator temp = *this; _node = _node->_next; return temp; }
-        reference operator*() const { return *_node->_value; }
-        pointer operator->() const { return _node->_value; }
-        iterator& operator--() { _node = _node->_prev; return *this; }
-        iterator operator--(int) { iterator temp = *this; _node = _node->_next; return temp; }
-
-        operator const_iterator() const { return const_iterator(*this); }
-
-        bool operator==(iterator other) const { return this->_node == other._node; }
-        bool operator!=(iterator other) const { return this->_node != other._node; }
-
-     private:
-        friend list;
-        node* _node{};
-    };
-
-    class const_iterator {
-     public:
-        using difference_type = ptrdiff_t;
-        using value_type = T;
-        using pointer = const T*;
-        using reference = const T&;
-        using iterator_category = std::bidirectional_iterator_tag;
-
-        const_iterator() = default;
-        explicit const_iterator(node* _x) : _node(_x) { }
-        const_iterator(const const_iterator& other) : _node(other._node) { }
-        explicit const_iterator(const iterator& other) : _node(other._node) {  }
-        const_iterator& operator=(const const_iterator& other) {
-            if (&other != this) {
-                _node = other._node;
+            ~node() {
+                delete _value;
             }
-            return *this;
+        };
+
+        class const_iterator;
+
+        class iterator {
+        public:
+            using difference_type = ptrdiff_t;
+            using value_type = T;
+            using pointer = T*;
+            using reference = T&;
+            using iterator_category = std::bidirectional_iterator_tag;
+
+            iterator() = default;
+            explicit iterator(node* _x) : _node(_x) { }
+            iterator(const iterator& other) : _node(other._node) { }
+            iterator& operator=(const iterator& other) {
+                if (&other != this) {
+                    _node = other._node;
+                }
+                return *this;
+            }
+
+            iterator& operator++() { _node = _node->_next; return *this; }
+            iterator operator++(int) { iterator temp = *this; _node = _node->_next; return temp; }
+            reference operator*() const { return *_node->_value; }
+            pointer operator->() const { return _node->_value; }
+            iterator& operator--() { _node = _node->_prev; return *this; }
+            iterator operator--(int) { iterator temp = *this; _node = _node->_next; return temp; }
+
+            operator const_iterator() const { return const_iterator(*this); }
+
+            bool operator==(iterator other) const { return this->_node == other._node; }
+            bool operator!=(iterator other) const { return this->_node != other._node; }
+
+        private:
+            friend list;
+            node* _node{};
+        };
+
+        class const_iterator {
+        public:
+            using difference_type = ptrdiff_t;
+            using value_type = T;
+            using pointer = const T*;
+            using reference = const T&;
+            using iterator_category = std::bidirectional_iterator_tag;
+
+            const_iterator() = default;
+            explicit const_iterator(node* _x) : _node(_x) { }
+            const_iterator(const const_iterator& other) : _node(other._node) { }
+            explicit const_iterator(const iterator& other) : _node(other._node) {  }
+            const_iterator& operator=(const const_iterator& other) {
+                if (&other != this) {
+                    _node = other._node;
+                }
+                return *this;
+            }
+
+            iterator _const_cast() const { return iterator(const_cast<node*>(_node)); }
+
+            const_iterator& operator++() { _node = _node->_next; return *this; }
+            const_iterator operator++(int) { const_iterator temp = *this; _node = _node->_next; return temp; }
+            reference operator*() const { return *_node->_value; }
+            pointer operator->() const { return _node->_value; }
+            const_iterator& operator--() { _node = _node->_prev; return *this; }
+            const_iterator operator--(int) { const_iterator temp = *this; _node = _node->_prev; return temp; }
+
+            bool operator==(const_iterator other) const { return this->_node == other._node; }
+            bool operator!=(const_iterator other) const { return this->_node != other._node; }
+
+        private:
+            friend list;
+            const node* _node{};
+        };
+
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+
+        list() = default;
+        list(size_t count, const T& value);
+        explicit list(size_t count);
+        ~list();
+
+        list(const list& other);
+        list& operator=(const list& other);
+
+        T& front() { return *begin(); }
+        const T& front() const { return *begin(); }
+
+        T& back() { return *std::prev(end()); }
+        const T& back() const { return *std::prev(end()); }
+
+
+        iterator begin() const { return iterator(_first); }
+        iterator end() const { return (_first != nullptr) ? iterator(_first->_prev) : (begin()); }
+
+        const_iterator cbegin() const { return const_iterator(begin()); }
+        const_iterator cend() const { return const_iterator(end()); }
+
+        reverse_iterator rbegin() const { return std::make_reverse_iterator(end()); }
+        reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
+
+        const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
+        const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
+
+
+        bool empty() const { return _size == 0; }
+        size_t size() const { return _size; }
+        static size_t max_size() { return std::numeric_limits<typename iterator::difference_type>::max(); }
+        void clear();
+
+        iterator insert(const_iterator pos, const T& value = T());
+        iterator insert(const_iterator pos, size_t count, const T& value);
+
+        iterator erase(const_iterator pos);
+        iterator erase(const_iterator first, const_iterator last);
+
+
+        void push_back(const T& value);
+        void pop_back();
+
+        void push_front(const T& value);
+        void pop_front();
+
+        void resize(size_t count);
+        void swap(list& other);
+
+
+        void merge(list& other);
+        void splice(const_iterator pos, list& other);
+        void remove(const T& value);
+        void reverse() const;
+        void unique();
+        void sort() const;
+
+    private:
+        node* create_node(const T& value = T()) {
+            node* temp = new node;
+            temp->_value = new T;
+            *temp->_value = value;
+            return temp;
         }
 
-        iterator _const_cast() const { return iterator(const_cast<node*>(_node)); }
-
-        const_iterator& operator++() { _node = _node->_next; return *this; }
-        const_iterator operator++(int) { const_iterator temp = *this; _node = _node->_next; return temp; }
-        reference operator*() const { return *_node->_value; }
-        pointer operator->() const { return _node->_value; }
-        const_iterator& operator--() { _node = _node->_prev; return *this; }
-        const_iterator operator--(int) { const_iterator temp = *this; _node = _node->_prev; return temp; }
-
-        bool operator==(const_iterator other) const { return this->_node == other._node; }
-        bool operator!=(const_iterator other) const { return this->_node != other._node; }
-
-     private:
-        friend list;
-        const node* _node{};
+        size_t _size{0};
+        node* _first{};
     };
-
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-
-
-    list() = default;
-    list(size_t count, const T& value);
-    explicit list(size_t count);
-    ~list();
-
-    list(const list& other);
-    list& operator=(const list& other);
-
-    T& front() { return *begin(); }
-    const T& front() const { return *begin(); }
-
-    T& back() { return *std::prev(end()); }
-    const T& back() const { return *std::prev(end()); }
-
-
-    iterator begin() const { return iterator(_first); }
-    iterator end() const { return (_first != nullptr) ? iterator(_first->_prev) : (begin()); }
-
-    const_iterator cbegin() const { return const_iterator(begin()); }
-    const_iterator cend() const { return const_iterator(end()); }
-
-    reverse_iterator rbegin() const { return std::make_reverse_iterator(end()); }
-    reverse_iterator rend() const { return std::make_reverse_iterator(begin()); }
-
-    const_reverse_iterator crbegin() const { return std::make_reverse_iterator(end()); }
-    const_reverse_iterator crend() const { return std::make_reverse_iterator(begin()); }
-
-
-    bool empty() const { return _size == 0; }
-    size_t size() const { return _size; }
-    static size_t max_size() { return std::numeric_limits<typename iterator::difference_type>::max(); }
-    void clear();
-
-    iterator insert(const_iterator pos, const T& value = T());
-    iterator insert(const_iterator pos, size_t count, const T& value);
-
-    iterator erase(const_iterator pos);
-    iterator erase(const_iterator first, const_iterator last);
-
-
-    void push_back(const T& value);
-    void pop_back();
-
-    void push_front(const T& value);
-    void pop_front();
-
-    void resize(size_t count);
-    void swap(list& other);
-
-
-    void merge(list& other);
-    void splice(const_iterator pos, list& other);
-    void remove(const T& value);
-    void reverse() const;
-    void unique();
-    void sort() const;
-
- private:
-    node* create_node(const T& value = T()) {
-        node* temp = new node;
-        temp->_value = new T;
-        *temp->_value = value;
-        return temp;
-    }
-
-    size_t _size{0};
-    node* _first{};
-};
 
     template<class T>
     list<T>::list(size_t count) : list() {
@@ -255,10 +255,10 @@ class list {
     class list<T>::iterator list<T>::erase(list::const_iterator pos) {
         if (empty())
             return begin();
-        --_size;
         node* next_node = pos._const_cast()._node->_next;
         node* curr_node = pos._const_cast()._node->unhook();
         delete curr_node;
+        --_size;
         if (pos == cbegin())
             _first = next_node;
         if (empty()) {
@@ -298,9 +298,11 @@ class list {
     void list<T>::sort() const {
         iterator first_it = begin();
         iterator last_it = end();
+        iterator pos = end();
         // Bubble sort
         for (iterator it1 = first_it; it1 != last_it; ++it1) {
-            for (iterator it2 = first_it; it2 != std::prev(last_it); ++it2) {
+            --pos;
+            for (iterator it2 = first_it; it2 != pos; ++it2) {
                 if (*it2 > *std::next(it2)) {
                     std::swap(it2._node->_value, std::next(it2)._node->_value);
                 }
