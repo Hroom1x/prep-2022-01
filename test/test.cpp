@@ -51,6 +51,7 @@ void FailWithMsg(const std::string& msg, int line) {
 
 
 int main() {
+
     {
         task::list<int> list;
         list.push_back(42);
@@ -227,7 +228,6 @@ int main() {
         std::vector<std::list<size_t>> lists_std(LIST_COUNT);
 
         for (size_t iter = 0; iter < ITER_COUNT; ++iter) {
-            std::cout<<iter<<std::endl;
             for (size_t list = 0; list < LIST_COUNT; ++list) {
                 if (TossCoin()) {
                     // Random Push
