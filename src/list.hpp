@@ -14,8 +14,6 @@ class list {
         node* _next;
         node* _prev;
 
-        node() { _value = new T(); }
-
         void hook(node* other) {
             if (this == other) {
                 _next = this;
@@ -231,7 +229,9 @@ class list {
         ++_size;
         if (pos._node == nullptr) {
             _first = temp;
+            node* _last = create_node();
             temp->hook(temp);
+            temp->hook(_last);
             return iterator(temp);
         }
 
