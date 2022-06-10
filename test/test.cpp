@@ -49,8 +49,16 @@ void FailWithMsg(const std::string& msg, int line) {
     ASSERT_TRUE_MSG(cont1.size() == cont2.size(), msg) \
     ASSERT_TRUE_MSG(std::equal(cont1.begin(), cont1.end(), cont2.begin(), cont2.end()), msg)
 
+// Пример типа с удалённым конструктором
+//struct Ex1 {
+//    Ex1() = delete;
+//    std::string str; // member has a non-trivial default ctor
+//};
 
 int main() {
+
+    // Тип с удалённым конструктором по умолчанию бросит ошибку
+    // { task::list<Ex1> test(5); }
 
     {
         task::list<int> list;

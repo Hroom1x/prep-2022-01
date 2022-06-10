@@ -152,7 +152,8 @@ class list {
     static size_t max_size() { return std::numeric_limits<typename iterator::difference_type>::max(); }
     void clear();
 
-    iterator insert(const_iterator pos, const T& value = T());
+    iterator insert(const_iterator pos);
+    iterator insert(const_iterator pos, const T& value);
     iterator insert(const_iterator pos, size_t count, const T& value);
 
     iterator erase(const_iterator pos);
@@ -224,12 +225,21 @@ class list {
     }
 
     template<class T>
+    class list<T>::iterator list<T>::insert(list::const_iterator pos) {
+        if constexpr (!std::is_default_constructible<T>::value) {
+            throw std::invalid_argument("Type has no default constructor");
+        } else {
+            return insert(pos, T());
+        }
+    }
+
+    template<class T>
     class list<T>::iterator list<T>::insert(list::const_iterator pos, const T &value) {
         node* temp = create_node(value);
         ++_size;
         if (pos._node == nullptr) {
             _first = std::move(temp);
-            node* _last = create_node();
+            node* _last = create_node(value);
             _first->hook(_first);
             _first->hook(_last);
             return iterator(_first);
@@ -357,24 +367,24 @@ class list {
 
     template<class T>
     void list<T>::splice(list::const_iterator pos, list &other) {
-        node* pos_prev = pos._const_cast()._node->_prev;
+        if (!other.empty()) {
+            node *pos_prev = pos._const_cast()._node->_prev;
 
-        pos_prev->_next = other.begin()._node;
+            pos_prev->_next = other.begin()._node;
 
-        node* other_end_prev = other.end()._node->_prev;
-        node* other_end = other.end()._node;
-        delete other_end;
+            node *other_end_prev = other.end()._node->_prev;  // Узел последнего значащего элемента
+            node *other_end = std::move(other.end()._node);   // Последний "псевдоузел"
+            delete other_end;
 
-        pos._const_cast()._node->_prev = other_end_prev;
-        other_end_prev->_next = pos._const_cast()._node;
-        other.begin()._node->_prev = pos_prev;
+            pos._const_cast()._node->_prev = other_end_prev;
+            other_end_prev->_next = pos._const_cast()._node;
+            other.begin()._node->_prev = pos_prev;
 
-        _size += other.size();
+            _size += other.size();
 
-        other._first = create_node();
-        other._first->_next = other._first;
-        other._first->_prev = other._first;
-        other._size = 0;
+            other._first = nullptr;
+            other._size = 0;
+        }
     }
 
     template<class T>
